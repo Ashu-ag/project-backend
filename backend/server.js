@@ -56,7 +56,7 @@ app.use('/api/files', require('./routes/files'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/search', require('./routes/search'));
-
+app.use('/api/admin', require('./routes/admin'));
 
 // Basic route
 app.get('/api', (req, res) => {

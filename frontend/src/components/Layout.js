@@ -10,6 +10,7 @@ import {
   X
 } from 'lucide-react';
 import { useState } from 'react';
+import { Shield } from 'lucide-react';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -22,11 +23,15 @@ const Layout = ({ children }) => {
     navigate('/login');
   };
 
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'My Classes', href: '/', icon: BookOpen },
-    { name: 'Profile', href: '/profile', icon: User },
-  ];
+  // Add to navigation array (only for admin users)
+const navigation = [
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'My Classes', href: '/', icon: BookOpen },
+  { name: 'Profile', href: '/profile', icon: User },
+  ...(user?.role === 'admin' ? [{ name: 'Admin', href: '/admin', icon: Shield }] : [])
+];
+
+  
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -167,6 +172,9 @@ const Layout = ({ children }) => {
         </main>
       </div>
     </div>
+    
+    
+
   );
 };
 

@@ -7,6 +7,7 @@ import Classroom from './pages/Classroom';
 import Layout from './components/Layout';
 import './index.css';
 import Profile from './pages/Profile';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -64,6 +65,14 @@ function App() {
                 </Layout>
               </ProtectedRoute>
             } />
+
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <Layout>
+                  <AdminDashboard />
+                </Layout>
+              </ProtectedRoute>
+           } />
 
             {/* Catch-all route */}
             <Route path="*" element={<Navigate to="/" replace />} />
