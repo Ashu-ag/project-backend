@@ -22,9 +22,18 @@ const auth = async (req, res, next) => {
       });
     }
 
+    // Check if user is active - ADD THIS CHECK
+    if (!user.isActive) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Your account has been deactivated. Please contact an administrator.' 
+      });
+    }
+
     req.user = user;
     next();
   } catch (error) {
+    console.error('Auth error:', error);
     res.status(401).json({ 
       success: false, 
       message: 'Token is not valid' 
@@ -32,7 +41,6 @@ const auth = async (req, res, next) => {
   }
 };
 
-// Add the requireRole function
 const requireRole = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {

@@ -59,6 +59,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login
+// Login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -69,6 +70,14 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Invalid credentials'
+      });
+    }
+
+    // Check if user is active - ADD THIS CHECK
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deactivated. Please contact an administrator.'
       });
     }
 
@@ -96,12 +105,15 @@ router.post('/login', async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          avatar: user.avatar,
+          isActive: user.isActive // Include this in response
         },
         token
       }
     });
   } catch (error) {
+    console.error('Error during login:', error);
     res.status(500).json({
       success: false,
       message: 'Server error during login',

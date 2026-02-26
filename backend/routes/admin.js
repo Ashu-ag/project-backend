@@ -8,6 +8,18 @@ const router = express.Router();
 
 // All routes require admin authentication
 router.use(auth, requireRole('admin'));
+// Test route to check user status
+router.get('/users/:userId/status', auth, requireRole('admin'), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('name email isActive');
+    res.json({
+      success: true,
+      data: { user }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 // Get all users
 router.get('/users', async (req, res) => {
@@ -51,12 +63,13 @@ router.post('/users', async (req, res) => {
       password,
       role: role || 'student',
       bio: bio || '',
-      phone: phone || ''
+      phone: phone || '',
+      isActive: true
     });
 
     await newUser.save();
 
-    const userResponse = await User.findById(newUser._id).select('-password');
+    const userResponse = await User.findById(newUser._id).select('-password').populate('classes');
 
     res.status(201).json({
       success: true,
@@ -82,7 +95,7 @@ router.put('/users/:userId', async (req, res) => {
       req.params.userId,
       { name, email, role, bio, phone },
       { new: true, runValidators: true }
-    ).select('-password');
+    ).select('-password').populate('classes');
 
     if (!updatedUser) {
       return res.status(404).json({
@@ -106,10 +119,59 @@ router.put('/users/:userId', async (req, res) => {
   }
 });
 
+// Toggle user status (Activate/Deactivate) - FIXED VERSION
+router.patch('/users/:userId/toggle-status', auth, requireRole('admin'), async (req, res) => {
+  try {
+    console.log('🔧 Toggling status for user:', req.params.userId);
+    
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) {
+      console.log('❌ User not found');
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Don't allow deactivating yourself
+    if (user._id.toString() === req.user._id.toString()) {
+      console.log('❌ Cannot toggle own account');
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot deactivate your own account'
+      });
+    }
+
+    // Toggle the isActive status
+    user.isActive = !user.isActive;
+    await user.save();
+
+    const updatedUser = await User.findById(user._id)
+      .select('-password')
+      .populate('classes');
+
+    console.log(`✅ User ${updatedUser.isActive ? 'activated' : 'deactivated'} successfully`);
+
+    res.json({
+      success: true,
+      message: `User ${updatedUser.isActive ? 'activated' : 'deactivated'} successfully`,
+      data: { user: updatedUser }
+    });
+  } catch (error) {
+    console.error('❌ Error toggling user status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error toggling user status',
+      error: error.message
+    });
+  }
+});
+
 // Delete user
 router.delete('/users/:userId', async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.userId);
+    const user = await User.findById(req.params.userId);
 
     if (!user) {
       return res.status(404).json({
@@ -117,6 +179,16 @@ router.delete('/users/:userId', async (req, res) => {
         message: 'User not found'
       });
     }
+
+    // Don't allow deleting yourself
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot delete your own account'
+      });
+    }
+
+    await User.findByIdAndDelete(req.params.userId);
 
     // Remove user from all classes
     await Class.updateMany(
@@ -138,38 +210,6 @@ router.delete('/users/:userId', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error deleting user',
-      error: error.message
-    });
-  }
-});
-
-// Toggle user status
-router.patch('/users/:userId/toggle-status', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId);
-    
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    user.isActive = !user.isActive;
-    await user.save();
-
-    const updatedUser = await User.findById(user._id).select('-password');
-
-    res.json({
-      success: true,
-      message: `User ${updatedUser.isActive ? 'activated' : 'deactivated'} successfully`,
-      data: { user: updatedUser }
-    });
-  } catch (error) {
-    console.error('Error toggling user status:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error toggling user status',
       error: error.message
     });
   }
@@ -200,7 +240,7 @@ router.get('/classes', async (req, res) => {
 // Delete class
 router.delete('/classes/:classId', async (req, res) => {
   try {
-    const classToDelete = await Class.findByIdAndDelete(req.params.classId);
+    const classToDelete = await Class.findById(req.params.classId);
 
     if (!classToDelete) {
       return res.status(404).json({
@@ -208,6 +248,8 @@ router.delete('/classes/:classId', async (req, res) => {
         message: 'Class not found'
       });
     }
+
+    await Class.findByIdAndDelete(req.params.classId);
 
     // Remove class from all users
     await User.updateMany(

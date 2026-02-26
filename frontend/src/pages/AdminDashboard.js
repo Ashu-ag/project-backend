@@ -128,17 +128,40 @@ const AdminDashboard = () => {
       alert('Error deleting user: ' + (error.response?.data?.message || error.message));
     }
   };
+  
+    const handleToggleUserStatus = async (userId, currentStatus) => {
+  try {
+    console.log('🔄 Toggling status for user:', userId, 'Current status:', currentStatus);
+    
+    const response = await axios.patch(`/admin/users/${userId}/toggle-status`);
+    console.log('✅ Toggle response:', response.data);
+    
+    // Update the users list with the updated user
+    setUsers(prev => prev.map(u => 
+      u._id === userId ? response.data.data.user : u
+    ));
+    
+    // Update stats
+    const updatedUser = response.data.data.user;
+    setStats(prev => ({
+      ...prev,
+      totalUsers: updatedUser.isActive ? prev.totalUsers + 1 : prev.totalUsers - 1,
+      totalTeachers: updatedUser.role === 'teacher' 
+        ? (updatedUser.isActive ? prev.totalTeachers + 1 : prev.totalTeachers - 1)
+        : prev.totalTeachers,
+      totalStudents: updatedUser.role === 'student'
+        ? (updatedUser.isActive ? prev.totalStudents + 1 : prev.totalStudents - 1)
+        : prev.totalStudents
+    }));
+    
+    alert(`User ${updatedUser.isActive ? 'activated' : 'deactivated'} successfully!`);
+  } catch (error) {
+    console.error('❌ Error toggling user status:', error);
+    console.error('Error response:', error.response?.data);
+    alert('Error toggling user status: ' + (error.response?.data?.message || error.message));
+  }
+};
 
-  const handleToggleUserStatus = async (userId, currentStatus) => {
-    try {
-      const response = await axios.patch(`/admin/users/${userId}/toggle-status`);
-      setUsers(prev => prev.map(u => u._id === userId ? response.data.data.user : u));
-      alert(`User ${response.data.data.user.isActive ? 'activated' : 'deactivated'} successfully!`);
-    } catch (error) {
-      console.error('Error toggling user status:', error);
-      alert('Error toggling user status: ' + (error.response?.data?.message || error.message));
-    }
-  };
 
   const handleDeleteClass = async (classId) => {
     if (!window.confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
@@ -400,14 +423,19 @@ const AdminDashboard = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => handleToggleUserStatus(user._id, user.isActive)}
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        <button
+                            onClick={() => {
+                            console.log('Toggle clicked for user:', user._id, 'Current status:', user.isActive);
+                            handleToggleUserStatus(user._id, user.isActive);
+                            }}
+                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
+                            user.isActive 
+                                ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                                : 'bg-red-100 text-red-800 hover:bg-red-200'
                             }`}
-                          >
+                        >
                             {user.isActive ? 'Active' : 'Inactive'}
-                          </button>
+                        </button>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {user.classes?.length || 0}

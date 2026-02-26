@@ -29,42 +29,62 @@ export const AuthProvider = ({ children }) => {
   axios.defaults.baseURL = 'http://localhost:5000/api';
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (token) {
-        try {
-          const response = await axios.get('/auth/me');
-          setUser(response.data.data.user);
-        } catch (error) {
-          console.error('Auth check failed:', error);
-          localStorage.removeItem('token');
-          delete axios.defaults.headers.common['Authorization'];
+  const checkAuth = async () => {
+    if (token) {
+      try {
+        const response = await axios.get('/auth/me');
+        const userData = response.data.data.user;
+        
+        // Check if user is still active
+        if (userData.isActive === false) {
+          // If deactivated, logout
+          logout();
+          window.location.href = '/login?reason=deactivated';
+          return;
         }
+        
+        setUser(userData);
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
       }
-      setLoading(false);
-    };
-
-    checkAuth();
-  }, [token]);
-
-  const login = async (email, password) => {
-    try {
-      const response = await axios.post('/auth/login', { email, password });
-      const { user, token } = response.data.data;
-      
-      localStorage.setItem('token', token);
-      setToken(token);
-      setUser(user);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      return { success: true };
-    } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
-      };
     }
+    setLoading(false);
   };
 
+  checkAuth();
+}, [token]);
+
+ const login = async (email, password) => {
+  try {
+    const response = await axios.post('/auth/login', { email, password });
+    const { user, token } = response.data.data;
+    
+    localStorage.setItem('token', token);
+    setToken(token);
+    setUser(user);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Login error:', error);
+    const message = error.response?.data?.message || 'Login failed';
+    
+    // Special handling for deactivated accounts
+    if (message.includes('deactivated')) {
+      return { 
+        success: false, 
+        message: 'Your account has been deactivated. Please contact an administrator.' 
+      };
+    }
+    
+    return { 
+      success: false, 
+      message: message
+    };
+  }
+};
   const register = async (userData) => {
     try {
       const response = await axios.post('/auth/register', userData);
