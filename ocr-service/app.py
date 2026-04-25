@@ -58,6 +58,28 @@ SEARCH_CONFIG = {
     'enable_ocr': True,
 }
 
+# Common English stop words to exclude from keyword/exact-match searches
+STOP_WORDS = {
+    'a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+    'of', 'with', 'by', 'from', 'up', 'about', 'into', 'through', 'during',
+    'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
+    'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might',
+    'can', 'that', 'this', 'these', 'those', 'it', 'its', 'as', 'if', 'then',
+    'than', 'so', 'yet', 'both', 'either', 'each', 'any', 'all', 'most',
+    'more', 'other', 'such', 'no', 'not', 'only', 'own', 'same', 'too',
+    'very', 'just', 'because', 'while', 'although', 'however', 'also',
+    'he', 'she', 'they', 'we', 'you', 'i', 'me', 'him', 'her', 'us', 'them',
+    'my', 'your', 'his', 'our', 'their', 'what', 'which', 'who', 'whom',
+    'when', 'where', 'why', 'how', 'over', 'under', 'between', 'after',
+    'before', 'above', 'below', 'off', 'out', 'down', 'there', 'here',
+}
+
+def filter_stop_words(terms):
+    """Remove stop words from a list of terms, keeping meaningful words."""
+    filtered = [t for t in terms if t.lower() not in STOP_WORDS and len(t) >= 2]
+    # If all words were stop words, return original terms (don't return empty)
+    return filtered if filtered else terms
+
 @dataclass
 class SearchResult:
     file_id: str
@@ -182,17 +204,20 @@ class SmartDocumentSearch:
     def index_document(self, file_id: str, filepath: str) -> bool:
         try:
             content, metadata = self.extract_text_from_any_file(filepath)
-            
+            filename = os.path.basename(filepath)
+            filename_no_ext = os.path.splitext(filename)[0].lower().replace('-', ' ').replace('_', ' ')
+
             if not content.strip():
-                print(f"⚠ No text extracted from {filepath}")
-                return False
-                
+                print(f"⚠ No text extracted from {filepath} — using filename only")
+                # For images/unsupported files, use filename as content so TF-IDF works
+                content = filename_no_ext
+
             doc = self.Document(
                 file_id=file_id,
                 filepath=filepath,
                 content=content,
                 chunks=self.chunk_document(content),
-                metadata=metadata
+                metadata={**metadata, 'filename': filename, 'filename_clean': filename_no_ext}
             )
             
             self.documents_store[file_id] = doc
@@ -217,7 +242,14 @@ class SmartDocumentSearch:
         if not self.documents_store:
             return []
 
-        # TF-IDF Search
+        # Filter stop words from query for keyword/exact-match searching
+        raw_terms = [t for t in query.lower().split() if len(t) >= 2]
+        meaningful_terms = filter_stop_words(raw_terms)
+        # Build a cleaned query string using only meaningful terms
+        cleaned_query = ' '.join(meaningful_terms)
+        effective_query = cleaned_query if cleaned_query else query
+
+        # TF-IDF Search (use cleaned query so stop words don't dilute scoring)
         if self.tfidf_matrix is None:
             documents = [doc.content for doc in self.documents_store.values()]
             if documents:
@@ -225,17 +257,17 @@ class SmartDocumentSearch:
             
         keyword_results = {}
         if self.tfidf_matrix is not None:
-            query_vector = self.tfidf_vectorizer.transform([query])
+            query_vector = self.tfidf_vectorizer.transform([effective_query])
             similarities = cosine_similarity(query_vector, self.tfidf_matrix).flatten()
             for idx, score in enumerate(similarities):
-                if score > 0.05:
+                if score > 0.02:  # lowered from 0.05 for better recall
                     file_id = list(self.documents_store.keys())[idx]
                     keyword_results[file_id] = float(score)
         
-        # Semantic Search (Chunk-level)
+        # Semantic Search (Chunk-level) — use original query for better semantic context
         semantic_results = {}
         if self.embeddings and embedding_model:
-            query_embedding = embedding_model.encode(query)
+            query_embedding = embedding_model.encode(effective_query)
             for file_id, chunk_embeddings in self.embeddings.items():
                 if len(chunk_embeddings) > 0:
                     # Calculate similarity between query and all chunks of this file
@@ -243,15 +275,15 @@ class SmartDocumentSearch:
                     best_score = float(np.max(similarities))
                     best_chunk_idx = int(np.argmax(similarities))
                     
-                    if best_score > 0.15: # lowered threshold to improve recall
+                    if best_score > 0.08:  # lowered from 0.15 for better recall
                         semantic_results[file_id] = {
                             'score': best_score,
                             'best_chunk_idx': best_chunk_idx
                         }
                         
-        # Direct Substring / Exact Match Search (Strong Keyword Fallback)
-        query_lower = query.lower()
-        query_terms = [t for t in query_lower.split() if len(t) >= 2]
+        # Direct Substring / Exact Match Search — only on meaningful terms (no stop words)
+        query_lower = effective_query.lower()
+        query_terms = meaningful_terms  # already filtered
         exact_match_results = {}
         for file_id, doc in self.documents_store.items():
             doc_lower = doc.content.lower()
@@ -268,20 +300,43 @@ class SmartDocumentSearch:
                     
             if exact_score > 0:
                 exact_match_results[file_id] = min(1.0, exact_score)
-                    
-        # Combine
+
+        # Filename matching — critical for images and files with little text
+        filename_results = {}
+        for file_id, doc in self.documents_store.items():
+            fname = doc.metadata.get('filename_clean', doc.metadata.get('filename', '')).lower()
+            if not fname:
+                fname = os.path.splitext(os.path.basename(doc.filepath))[0].lower().replace('-', ' ').replace('_', ' ')
+            fname_score = 0
+            # Full phrase in filename
+            if query_lower in fname:
+                fname_score += 0.85
+            else:
+                # Partial term matches in filename
+                for term in query_terms:
+                    if term in fname:
+                        fname_score += 0.35
+            if fname_score > 0:
+                filename_results[file_id] = min(1.0, fname_score)
+
+        # Combine all signals
         combined_scores = {}
-        all_files = set(keyword_results.keys()) | set(semantic_results.keys()) | set(exact_match_results.keys())
+        all_files = (set(keyword_results.keys()) | set(semantic_results.keys()) |
+                     set(exact_match_results.keys()) | set(filename_results.keys()))
         for file_id in all_files:
-            kw_score = keyword_results.get(file_id, 0)
-            sem_data = semantic_results.get(file_id, {'score': 0})
-            sem_score = sem_data['score'] if isinstance(sem_data, dict) else 0
+            kw_score    = keyword_results.get(file_id, 0)
+            sem_data    = semantic_results.get(file_id, {'score': 0})
+            sem_score   = sem_data['score'] if isinstance(sem_data, dict) else 0
             exact_score = exact_match_results.get(file_id, 0)
-            
-            # Combine scores, giving explicit substring matches a powerful boost
-            combined = (SEARCH_CONFIG['keyword_weight'] * kw_score + 
-                       SEARCH_CONFIG['semantic_weight'] * sem_score +
-                       0.5 * exact_score)
+            fname_score = filename_results.get(file_id, 0)
+
+            # Filename + exact matches are strongest signals (especially for images)
+            combined = (
+                SEARCH_CONFIG['keyword_weight'] * kw_score +
+                SEARCH_CONFIG['semantic_weight'] * sem_score +
+                0.6 * exact_score +
+                0.7 * fname_score
+            )
             combined_scores[file_id] = min(1.0, combined)
             
         sorted_files = sorted(combined_scores.items(), key=lambda x: x[1], reverse=True)
@@ -329,16 +384,19 @@ class SmartDocumentSearch:
         return excerpt
     
     def find_matched_terms(self, text: str, query: str) -> List[str]:
-        query_terms = [t for t in query.lower().split() if len(t) >= 2]
+        # Filter stop words so only meaningful terms are highlighted
+        raw_terms = [t for t in query.lower().split() if len(t) >= 2]
+        query_terms = filter_stop_words(raw_terms)
         text_lower = text.lower()
         matched = []
         for term in query_terms:
             if term in text_lower:
                 matched.append(term)
         
-        # Add the full phrase if it matches
-        if len(query.split()) > 1 and query.lower() in text_lower:
-            matched.insert(0, query)
+        # Add the full cleaned phrase if it matches
+        cleaned_phrase = ' '.join(query_terms)
+        if len(query_terms) > 1 and cleaned_phrase in text_lower:
+            matched.insert(0, cleaned_phrase)
             
         return matched
         

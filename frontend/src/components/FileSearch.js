@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, Filter, X, FileText, Image, Presentation, Download, Table } from 'lucide-react';
+import { Search, Filter, X, FileText, Image, Presentation, Download, Table, CheckCircle, AlertCircle } from 'lucide-react';
 
 const FileSearch = ({ classId, onFileSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,6 +19,8 @@ const FileSearch = ({ classId, onFileSelect }) => {
     fileTypes: [],
     tags: []
   });
+  const [downloadingId, setDownloadingId] = useState(null); // which file is being downloaded
+  const [downloadStatus, setDownloadStatus] = useState({}); // { fileId: 'ok' | 'error' }
 
   useEffect(() => {
     fetchAvailableFilters();
@@ -86,6 +88,42 @@ const FileSearch = ({ classId, onFileSelect }) => {
       tags: []
     });
     setSearchQuery('');
+  };
+
+  const handleDownload = async (e, fileId, fileName) => {
+    e.stopPropagation(); // prevent row click triggering onFileSelect
+    if (downloadingId === fileId) return; // already downloading
+    setDownloadingId(fileId);
+    setDownloadStatus(prev => ({ ...prev, [fileId]: null }));
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please log in again to download files.');
+        return;
+      }
+      const response = await fetch(
+        `http://localhost:5000/api/files/download/${fileId}`,
+        { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      setDownloadStatus(prev => ({ ...prev, [fileId]: 'ok' }));
+      setTimeout(() => setDownloadStatus(prev => ({ ...prev, [fileId]: null })), 2500);
+    } catch (err) {
+      console.error('Download error:', err);
+      setDownloadStatus(prev => ({ ...prev, [fileId]: 'error' }));
+      setTimeout(() => setDownloadStatus(prev => ({ ...prev, [fileId]: null })), 3000);
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   const getFileIcon = (fileType) => {
@@ -231,7 +269,15 @@ const FileSearch = ({ classId, onFileSelect }) => {
       </div>
 
       {/* Search Results */}
-      <div className="p-4">
+      <div
+        className="p-4"
+        style={{
+          maxHeight: '480px',
+          overflowY: 'auto',
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#c7d2fe #f1f5f9'
+        }}
+      >
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -293,18 +339,44 @@ const FileSearch = ({ classId, onFileSelect }) => {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2" onClick={e => e.stopPropagation()}>
                   <span className="bg-gray-100 px-2 py-1 rounded text-xs capitalize">
                     {file.category}
                   </span>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Add download functionality here
+                    onClick={(e) => handleDownload(e, file._id, file.originalName)}
+                    disabled={downloadingId === file._id}
+                    title="Download file"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '5px',
+                      padding: '6px 12px', borderRadius: '8px', border: 'none',
+                      cursor: downloadingId === file._id ? 'not-allowed' : 'pointer',
+                      fontWeight: '600', fontSize: '12px',
+                      background: downloadStatus[file._id] === 'ok'
+                        ? 'linear-gradient(135deg,#22c55e,#16a34a)'
+                        : downloadStatus[file._id] === 'error'
+                        ? 'linear-gradient(135deg,#ef4444,#dc2626)'
+                        : downloadingId === file._id
+                        ? '#e0e7ff'
+                        : 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+                      color: '#fff',
+                      boxShadow: downloadingId === file._id ? 'none' : '0 2px 8px rgba(99,102,241,0.35)',
+                      transition: 'all 0.2s ease',
+                      minWidth: '90px', justifyContent: 'center'
                     }}
-                    className="p-2 text-gray-400 hover:text-gray-600"
                   >
-                    <Download className="w-4 h-4" />
+                    {downloadingId === file._id ? (
+                      <>
+                        <div style={{ width: '12px', height: '12px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                        <span style={{ color: '#6366f1' }}>Loading...</span>
+                      </>
+                    ) : downloadStatus[file._id] === 'ok' ? (
+                      <><CheckCircle size={13} /> Downloaded</>
+                    ) : downloadStatus[file._id] === 'error' ? (
+                      <><AlertCircle size={13} /> Failed</>
+                    ) : (
+                      <><Download size={13} /> Download</>
+                    )}
                   </button>
                 </div>
               </div>

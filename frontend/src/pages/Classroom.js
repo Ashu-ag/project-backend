@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { Upload, FileText, Users, MessageSquare, Download, BookOpen } from 'lucide-react';
+import { Upload, FileText, Users, MessageSquare, Download, BookOpen, Trash2 } from 'lucide-react';
 import ChatPanel from '../components/ChatPanel';
 import AnnouncementsPanel from '../components/AnnouncementsPanel';
 import FileSearch from '../components/FileSearch';
@@ -43,6 +43,16 @@ const Classroom = () => {
       console.error('Error fetching files:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteFile = async (fileId, fileName) => {
+    if (!window.confirm(`Delete "${fileName}"? This cannot be undone.`)) return;
+    try {
+      await axios.delete(`/files/${fileId}`);
+      setFiles(prev => prev.filter(f => f._id !== fileId));
+    } catch (error) {
+      alert('Error deleting file: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -209,7 +219,16 @@ const Classroom = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-3">
+          <div
+            className="space-y-3"
+            style={{
+              maxHeight: '420px',
+              overflowY: 'auto',
+              paddingRight: '4px',
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#c7d2fe #f1f5f9'
+            }}
+          >
             {files.map(file => (
               <div key={file._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                 <div className="flex items-center space-x-4">
@@ -238,9 +257,19 @@ const Classroom = () => {
                   <button
                     onClick={() => handleDownload(file._id, file.originalName)}
                     className="p-2 bg-gray-200 text-gray-900 rounded-lg font-medium transition-colors duration-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    title="Download"
                   >
                     <Download className="w-4 h-4" />
                   </button>
+                  {(user?.role === 'teacher' || user?.role === 'admin') && (
+                    <button
+                      onClick={() => handleDeleteFile(file._id, file.originalName)}
+                      className="p-2 bg-red-100 text-red-600 rounded-lg font-medium transition-colors duration-200 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+                      title="Delete file"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

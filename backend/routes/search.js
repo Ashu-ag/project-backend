@@ -66,22 +66,39 @@ router.get('/files', auth, async (req, res) => {
       try {
         aiResults = await fetchAIResults(q);
         if (aiResults && aiResults.length > 0) {
-          const aiFileIds = aiResults.map(r => r.file_id);
-          searchQuery._id = { $in: aiFileIds };
-          
           aiResults.forEach(r => {
-             aiScoreMap[r.file_id] = {
-               score: r.score,
-               excerpt: r.excerpt,
-               matched_terms: r.matched_terms,
-               extracted_method: r.extracted_method
-             };
+            aiScoreMap[r.file_id] = {
+              score: r.score,
+              excerpt: r.excerpt,
+              matched_terms: r.matched_terms,
+              extracted_method: r.extracted_method
+            };
           });
-        } else {
-          // Fallback to mongo text search if AI returns empty
-          searchQuery.$text = { $search: q };
         }
       } catch (e) {
+        console.error('AI service error:', e);
+      }
+
+      // Build a set of file IDs from AI results
+      const aiFileIds = Object.keys(aiScoreMap);
+
+      // Also search by filename so images/files with little text are always found
+      const terms = q.split(/\s+/).filter(t => t.length >= 2);
+      const nameRegex = new RegExp(terms.join('|'), 'i');
+      const nameMatchedFiles = await File.find({
+        ...searchQuery,
+        originalName: { $regex: nameRegex }
+      }).select('_id').lean();
+
+      const nameMatchedIds = nameMatchedFiles.map(f => f._id.toString());
+
+      // Union: AI results + filename matches
+      const allMatchedIds = [...new Set([...aiFileIds, ...nameMatchedIds])];
+
+      if (allMatchedIds.length > 0) {
+        searchQuery._id = { $in: allMatchedIds };
+      } else {
+        // Last resort: mongo text search
         searchQuery.$text = { $search: q };
       }
     }
@@ -115,17 +132,29 @@ router.get('/files', auth, async (req, res) => {
       .sort({ createdAt: -1 });
 
     // Attach AI properties if available and sort by AI score
-    if (q && Object.keys(aiScoreMap).length > 0) {
+    if (q) {
+      const qTerms = q.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
       files = files.map(file => {
-        const fileObj = file.toObject();
+        const fileObj = file.toObject ? file.toObject() : file;
         const aiData = aiScoreMap[file._id.toString()];
         if (aiData) {
           fileObj.aiScore = aiData.score;
           fileObj.aiExcerpt = aiData.excerpt;
           fileObj.aiMatchedTerms = aiData.matched_terms;
           fileObj.aiExtractedMethod = aiData.extracted_method;
+        } else {
+          // Fallback: compute score from filename match
+          const fname = (fileObj.originalName || '').toLowerCase();
+          const fullMatch = qTerms.every(t => fname.includes(t));
+          const partialMatches = qTerms.filter(t => fname.includes(t)).length;
+          const ratio = partialMatches / Math.max(qTerms.length, 1);
+          fileObj.aiScore = fullMatch ? 0.85 : ratio * 0.6;
+          fileObj.aiMatchedTerms = qTerms.filter(t => fname.includes(t));
+          fileObj.aiExcerpt = null;
+          fileObj.aiExtractedMethod = 'filename';
         }
         return fileObj;
+
       });
       // Sort by AI score descending
       files.sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));

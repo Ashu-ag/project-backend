@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { Send, Megaphone, Users } from 'lucide-react';
+import { Send, Megaphone, Users, GraduationCap } from 'lucide-react';
 import io from 'socket.io-client';
 
 const ChatPanel = ({ classId, classData }) => {
@@ -91,7 +91,7 @@ const ChatPanel = ({ classId, classData }) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-96 flex items-center justify-center">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-center" style={{ height: '600px' }}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -125,53 +125,143 @@ const ChatPanel = ({ classId, classData }) => {
       </div>
 
       {/* Messages Container */}
-      <div className="h-96 overflow-y-auto p-4 space-y-3">
+      <div
+        className="overflow-y-auto p-4 space-y-3"
+        style={{
+          height: '520px',
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#c7d2fe #f1f5f9'
+        }}
+      >
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 py-8">
             <p>No messages yet. Start the conversation!</p>
           </div>
         ) : (
-          messages.map((message) => (
-            <div
-              key={message._id}
-              className={`flex ${message.sender._id === user.id ? 'justify-end' : 'justify-start'}`}
-            >
+          messages.map((message) => {
+            const isOwn = message.sender._id === user.id;
+            const isTeacher = message.sender.role === 'teacher';
+            const isAnnouncement = message.isAnnouncement;
+
+            // Bubble color logic
+            let bubbleBg, bubbleBorder, nameColor, textColor;
+            if (isAnnouncement) {
+              bubbleBg = '#fef9c3'; bubbleBorder = '#fde68a';
+              nameColor = '#92400e'; textColor = '#b45309';
+            } else if (isOwn) {
+              bubbleBg = '#dbeafe'; bubbleBorder = '#bfdbfe';
+              nameColor = '#1e40af'; textColor = '#1d4ed8';
+            } else if (isTeacher) {
+              bubbleBg = '#f3e8ff'; bubbleBorder = '#d8b4fe';
+              nameColor = '#6b21a8'; textColor = '#7e22ce';
+            } else {
+              bubbleBg = '#f3f4f6'; bubbleBorder = '#e5e7eb';
+              nameColor = '#374151'; textColor = '#4b5563';
+            }
+
+            return (
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                  message.isAnnouncement
-                    ? 'bg-yellow-100 border border-yellow-200'
-                    : message.sender._id === user.id
-                    ? 'bg-blue-100 border border-blue-200'
-                    : 'bg-gray-100 border border-gray-200'
-                }`}
+                key={message._id}
+                className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
               >
-                {message.isAnnouncement && (
-                  <div className="flex items-center text-yellow-700 text-xs font-semibold mb-1">
-                    <Megaphone className="w-3 h-3 mr-1" />
-                    ANNOUNCEMENT
+                {/* Avatar — only for others */}
+                {!isOwn && (
+                  <div
+                    title={isTeacher ? 'Teacher' : 'Student'}
+                    style={{
+                      flexShrink: 0,
+                      width: '34px', height: '34px',
+                      borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '13px', fontWeight: '700',
+                      background: isTeacher
+                        ? 'linear-gradient(135deg,#7c3aed,#a855f7)'
+                        : 'linear-gradient(135deg,#6b7280,#9ca3af)',
+                      color: '#fff',
+                      boxShadow: isTeacher ? '0 2px 8px rgba(124,58,237,0.4)' : 'none',
+                      border: isTeacher ? '2px solid #d8b4fe' : '2px solid #e5e7eb'
+                    }}
+                  >
+                    {isTeacher
+                      ? <GraduationCap size={16} />
+                      : message.sender.name?.charAt(0).toUpperCase()}
                   </div>
                 )}
-                
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-sm font-medium ${
-                    message.isAnnouncement ? 'text-yellow-800' : 'text-gray-800'
-                  }`}>
-                    {message.sender.name}
-                    {message.sender._id === user.id && ' (You)'}
-                  </span>
-                  <span className="text-xs text-gray-500 ml-2">
-                    {formatTime(message.createdAt)}
-                  </span>
+
+                {/* Bubble */}
+                <div
+                  style={{
+                    maxWidth: '340px',
+                    padding: '10px 14px',
+                    borderRadius: isOwn ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                    background: bubbleBg,
+                    border: `1px solid ${bubbleBorder}`,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.07)'
+                  }}
+                >
+                  {/* Announcement banner */}
+                  {isAnnouncement && (
+                    <div style={{ display:'flex', alignItems:'center', color:'#92400e', fontSize:'11px', fontWeight:'700', marginBottom:'6px', gap:'4px' }}>
+                      <Megaphone size={11} />
+                      ANNOUNCEMENT
+                    </div>
+                  )}
+
+                  {/* Name row */}
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'4px', gap:'8px' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap' }}>
+                      <span style={{ fontSize:'13px', fontWeight:'700', color: nameColor }}>
+                        {message.sender.name}{isOwn && ' (You)'}
+                      </span>
+                      {/* Teacher badge */}
+                      {isTeacher && (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '3px',
+                          fontSize: '10px', fontWeight: '700',
+                          padding: '1px 7px', borderRadius: '999px',
+                          background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
+                          color: '#fff',
+                          letterSpacing: '0.04em',
+                          boxShadow: '0 1px 4px rgba(124,58,237,0.35)'
+                        }}>
+                          <GraduationCap size={9} />
+                          TEACHER
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontSize:'11px', color:'#9ca3af', whiteSpace:'nowrap' }}>
+                      {formatTime(message.createdAt)}
+                    </span>
+                  </div>
+
+                  {/* Message text */}
+                  <p style={{ fontSize:'14px', color: textColor, margin: 0, lineHeight: '1.5' }}>
+                    {message.content}
+                  </p>
                 </div>
-                
-                <p className={`text-sm ${
-                  message.isAnnouncement ? 'text-yellow-700' : 'text-gray-700'
-                }`}>
-                  {message.content}
-                </p>
+
+                {/* Own avatar */}
+                {isOwn && (
+                  <div style={{
+                    flexShrink: 0,
+                    width: '34px', height: '34px',
+                    borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '13px', fontWeight: '700',
+                    background: user.role === 'teacher'
+                      ? 'linear-gradient(135deg,#7c3aed,#a855f7)'
+                      : 'linear-gradient(135deg,#3b82f6,#6366f1)',
+                    color: '#fff',
+                    border: user.role === 'teacher' ? '2px solid #d8b4fe' : '2px solid #bfdbfe'
+                  }}>
+                    {user.role === 'teacher'
+                      ? <GraduationCap size={16} />
+                      : user.name?.charAt(0).toUpperCase()}
+                  </div>
+                )}
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={messagesEndRef} />
       </div>

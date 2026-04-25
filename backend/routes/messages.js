@@ -33,7 +33,7 @@ router.get('/class/:classId', auth, async (req, res) => {
 
     // Get messages with pagination
     const messages = await Message.find({ class: classId })
-      .populate('sender', 'name email avatar')
+      .populate('sender', 'name email avatar role')
       .populate('file')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
@@ -128,7 +128,7 @@ router.post('/send', auth, async (req, res) => {
     await newMessage.save();
     
     // Populate sender info for real-time emission
-    await newMessage.populate('sender', 'name email avatar');
+    await newMessage.populate('sender', 'name email avatar role');
     if (fileId) {
       await newMessage.populate('file');
     }
@@ -245,11 +245,24 @@ router.delete('/:messageId', auth, async (req, res) => {
       });
     }
 
-    // Check if user is the sender or has admin rights
-    if (message.sender.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    // Allow: sender themselves, admins, or teachers of this class
+    const isSender = message.sender.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    let isTeacherOfClass = false;
+    if (!isSender && !isAdmin) {
+      const classData = await Class.findById(message.class);
+      if (classData) {
+        isTeacherOfClass = classData.teachers.some(
+          t => t.toString() === req.user._id.toString()
+        );
+      }
+    }
+
+    if (!isSender && !isAdmin && !isTeacherOfClass) {
       return res.status(403).json({
         success: false,
-        message: 'You can only delete your own messages'
+        message: 'Only teachers and admins can delete messages'
       });
     }
 

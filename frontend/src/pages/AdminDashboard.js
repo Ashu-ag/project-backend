@@ -17,7 +17,8 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-  Eye
+  Eye,
+  GraduationCap
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -40,6 +41,7 @@ const AdminDashboard = () => {
   const [showClassModal, setShowClassModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [userSearch, setUserSearch] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -369,101 +371,184 @@ const AdminDashboard = () => {
           )}
 
           {/* Users Tab */}
-          {activeTab === 'users' && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold flex items-center">
-                  <Users className="w-5 h-5 mr-2 text-blue-600" />
-                  Manage Users
-                </h2>
-                <button
-                  onClick={() => openUserModal()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium transition-colors duration-200 hover:bg-blue-700 flex items-center"
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Add User
-                </button>
-              </div>
+          {activeTab === 'users' && (() => {
+            const q = userSearch.toLowerCase();
+            const teachers = users.filter(u => u.role === 'teacher' &&
+              (u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+            const students = users.filter(u => u.role === 'student' &&
+              (u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
 
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
+            const UserTable = ({ list, accentColor, emptyLabel }) => (
+              <div style={{ overflowX: 'auto', maxHeight: '420px', overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#e5e7eb #f9fafb' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                  <thead style={{ position: 'sticky', top: 0, background: '#f9fafb', zIndex: 1 }}>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classes</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      {['Name', 'Email', 'Status', 'Classes', 'Last Login', 'Actions'].map(h => (
+                        <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6b7280', borderBottom: '1px solid #e5e7eb' }}>{h}</th>
+                      ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {users.map(user => (
-                      <tr key={user._id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {user.avatar ? (
-                              <img src={`http://localhost:5000${user.avatar}`} className="w-8 h-8 rounded-full mr-3" />
+                  <tbody>
+                    {list.length === 0 ? (
+                      <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af', fontSize: '13px' }}>{emptyLabel}</td></tr>
+                    ) : list.map((u, i) => (
+                      <tr key={u._id} style={{ background: i % 2 === 0 ? '#fff' : '#f9fafb', borderBottom: '1px solid #f3f4f6' }}>
+                        {/* Name + avatar */}
+                        <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            {u.avatar ? (
+                              <img src={`http://localhost:5000${u.avatar}`} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
                             ) : (
-                              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                                <span className="text-xs font-medium">{user.name[0]}</span>
+                              <div style={{
+                                width: '32px', height: '32px', borderRadius: '50%',
+                                background: accentColor === 'purple'
+                                  ? 'linear-gradient(135deg,#7c3aed,#a855f7)'
+                                  : 'linear-gradient(135deg,#2563eb,#6366f1)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: '#fff', fontWeight: '700', fontSize: '13px'
+                              }}>
+                                {u.name?.[0]?.toUpperCase()}
                               </div>
                             )}
-                            <span className="text-sm font-medium text-gray-900">{user.name}</span>
+                            <span style={{ fontWeight: '600', color: '#111827' }}>{u.name}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
-                            user.role === 'teacher' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                            onClick={() => {
-                            console.log('Toggle clicked for user:', user._id, 'Current status:', user.isActive);
-                            handleToggleUserStatus(user._id, user.isActive);
+                        {/* Email */}
+                        <td style={{ padding: '12px 14px', color: '#6b7280', whiteSpace: 'nowrap' }}>{u.email}</td>
+                        {/* Status toggle */}
+                        <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>
+                          <button
+                            onClick={() => handleToggleUserStatus(u._id, u.isActive)}
+                            style={{
+                              padding: '3px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: '600',
+                              border: 'none', cursor: 'pointer',
+                              background: u.isActive ? '#dcfce7' : '#fee2e2',
+                              color: u.isActive ? '#166534' : '#991b1b'
                             }}
-                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
-                            user.isActive 
-                                ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                                : 'bg-red-100 text-red-800 hover:bg-red-200'
-                            }`}
-                        >
-                            {user.isActive ? 'Active' : 'Inactive'}
-                        </button>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.classes?.length || 0}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => openUserModal(user)}
-                            className="text-blue-600 hover:text-blue-900 mr-3"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            {u.isActive ? '● Active' : '● Inactive'}
                           </button>
-                          <button
-                            onClick={() => handleDeleteUser(user._id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        </td>
+                        {/* Classes */}
+                        <td style={{ padding: '12px 14px', color: '#6b7280', textAlign: 'center' }}>{u.classes?.length || 0}</td>
+                        {/* Last Login */}
+                        <td style={{ padding: '12px 14px', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                          {u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'Never'}
+                        </td>
+                        {/* Actions */}
+                        <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={() => openUserModal(u)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb', padding: '4px' }}
+                              title="Edit">
+                              <Edit3 size={15} />
+                            </button>
+                            <button onClick={() => handleDeleteUser(u._id)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '4px' }}
+                              title="Delete">
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
-          )}
+            );
+
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                {/* Top bar: title + search + add user */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Users size={20} color="#2563eb" />
+                    <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#111827', margin: 0 }}>Manage Users</h2>
+                    <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: '600', padding: '2px 8px', borderRadius: '999px' }}>
+                      {users.length} total
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {/* Search */}
+                    <input
+                      type="text"
+                      placeholder="Search name or email..."
+                      value={userSearch}
+                      onChange={e => setUserSearch(e.target.value)}
+                      style={{
+                        padding: '7px 14px', borderRadius: '8px', border: '1px solid #e5e7eb',
+                        fontSize: '13px', outline: 'none', minWidth: '200px'
+                      }}
+                    />
+                    <button
+                      onClick={() => { setFormData(p => ({ ...p, role: 'teacher' })); openUserModal(); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '6px',
+                        padding: '8px 14px', borderRadius: '8px', border: 'none',
+                        background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
+                        color: '#fff', fontWeight: '600', fontSize: '13px', cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(124,58,237,0.3)'
+                      }}
+                    >
+                      <UserPlus size={15} /> Add Teacher
+                    </button>
+                    <button
+                      onClick={() => { setFormData(p => ({ ...p, role: 'student' })); openUserModal(); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '6px',
+                        padding: '8px 14px', borderRadius: '8px', border: 'none',
+                        background: 'linear-gradient(135deg,#2563eb,#6366f1)',
+                        color: '#fff', fontWeight: '600', fontSize: '13px', cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(37,99,235,0.3)'
+                      }}
+                    >
+                      <UserPlus size={15} /> Add Student
+                    </button>
+                  </div>
+                </div>
+
+                {/* ───── Teachers Section ───── */}
+                <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                  <div style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7)', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <GraduationCap size={20} color="#fff" />
+                      <h3 style={{ margin: 0, color: '#fff', fontWeight: '700', fontSize: '15px' }}>Teachers</h3>
+                      <span style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', fontSize: '12px', fontWeight: '700', padding: '2px 9px', borderRadius: '999px' }}>
+                        {teachers.length}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => { setFormData(p => ({ ...p, role: 'teacher' })); openUserModal(); }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '7px', padding: '5px 12px', color: '#fff', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                    >
+                      <UserPlus size={13} /> Add Teacher
+                    </button>
+                  </div>
+                  <UserTable list={teachers} accentColor="purple" emptyLabel={userSearch ? 'No teachers match your search.' : 'No teachers yet.'} />
+                </div>
+
+                {/* ───── Students Section ───── */}
+                <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                  <div style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1)', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <Users size={20} color="#fff" />
+                      <h3 style={{ margin: 0, color: '#fff', fontWeight: '700', fontSize: '15px' }}>Students</h3>
+                      <span style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', fontSize: '12px', fontWeight: '700', padding: '2px 9px', borderRadius: '999px' }}>
+                        {students.length}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => { setFormData(p => ({ ...p, role: 'student' })); openUserModal(); }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '7px', padding: '5px 12px', color: '#fff', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                    >
+                      <UserPlus size={13} /> Add Student
+                    </button>
+                  </div>
+                  <UserTable list={students} accentColor="blue" emptyLabel={userSearch ? 'No students match your search.' : 'No students yet.'} />
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Classes Tab */}
           {activeTab === 'classes' && (

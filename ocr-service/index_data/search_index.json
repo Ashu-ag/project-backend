@@ -1,66 +1,33 @@
 {
   "documents": {
-    "69ebb4baec937ad314320772": {
-      "file_id": "69ebb4baec937ad314320772",
-      "filepath": "d:\\classroom-app\\backend\\uploads\\file-1777054906920-207679689.pdf",
-      "content": "Student Helpline No.8128689701",
+    "69ece2d6fe5edcf07e721720": {
+      "file_id": "69ece2d6fe5edcf07e721720",
+      "filepath": "D:\\classroom-app\\backend\\uploads\\file-1777132246632-427594448.jpeg",
+      "content": "file 1777132246632 427594448",
       "metadata": {
-        "filename": "file-1777054906920-207679689.pdf",
-        "extracted_method": "OCR (Scanned)"
+        "filename": "file-1777132246632-427594448.jpeg",
+        "extracted_method": "OCR",
+        "filename_clean": "file 1777132246632 427594448"
       }
     },
-    "69ebb4c2ec937ad314320777": {
-      "file_id": "69ebb4c2ec937ad314320777",
-      "filepath": "d:\\classroom-app\\backend\\uploads\\file-1777054914770-981959681.pdf",
-      "content": "Dr. Babasaheb Ambedkar Technological University BTCSD701 : NATURAL LANGUAGE PROCESSING (Credit :3 ) BTCSD702 : ADVANCED COMPUTER VISION (Credit :3 ) BTCSD703 : DATA SCIENCE OPTIMIZATION TECHNIQUES (Credit :3 ) BTCSD704C : VIRTUAL REALITY (Credit :3 ) BTCSD705B : BLOCK CHAIN TECHNOLOGY (Credit :3 ) BTCSD706 : FOREIGN LANGUAGE STUDIES BTCSD707L : NATURAL LANGUAGE PROCESSING & DATA ENGINEERING LAB (Credit :2 ) BTCSDF709 : FIELD TRAINING / INTERNSHIP / INDUSTRIAL TRAINING \u2013 III (EVALUATION) BTCSDM708 : PROJECT PHASE \u2013 I (Credit :2 ) EXAMINATION : Bachelor of Technology (Computer Science and Design) SEMESTER - 7 Winter 2025 ( Regular ) Institute Record CORE BTCSD701 BTCSD702 BTCSD703 BTCSD704C BTCSD705B BTCSD706 BTCSD707L BTCSDF709 BTCSDM708 CREDIT 3 3 3 3 3 2 2 ESE TOTAL 60/20 60/20 60/20 60/20 60/20 40/16 40/16 CA INTERNAL 20 20 20 20 20 60 60 MID INTERNAL 20 20 20 20 20 INT TOTAL GRADE GRADE TOTAL 100/40 100/40 100/40 100/40 100/40 GRADE 100/40 GRADE 100/40 Result Total Marks(700) SGPA Seat No. (Gen.)Name INSTITUTE Code - Name Center Code (Whole/Part) Tot.GrP.-190.00 Cr.19.00 -- 020 026 023 -- 035 036 017 018 016 017 017 046 052 012 010 009 012 010 | | 029 048 051 052 027 | 081 | 088 FAIL 05244 (Whole) 376 2152441257026 (F)SHINDE TANVI RAMESH 05244 - MET's Institute of Technology Polytechnic 13.00 83.00 0/FF/0 5/EE/15(G-4) 5.5/DE/16.5 5.5/DE/16.5 0/FF/0 AU 8.5/AB/17 AU 9/AA/18 046 040 -- 035 -- 032 035 020 019 020 020 020 052 054 018 017 018 018 018 | | 084 076 038 073 038 | 084 | 089 FAIL 05244 (Whole) 482 2252441257001 (F)BHANDARE NIKITA SANDIP 05244 - MET's Institute of Technology Polytechnic 13.00 107.00 8.5/AB/25.5 8/BB/24 0/FF/0 7.5/BC/22.5 0/FF/0 AU 8.5/AB/17 AU 9/AA/18 041 045 048 035 048 035 035 018 017 017 017 017 051 054 016 010 013 014 014 | | 075 072 078 066 079 | 086 | 089 PASS 05244 (Whole) 545 2252441257002 (F)CHAUDHARI RUSHITA VILAS 05244 - MET's Institute of Technology Polytechnic 7.89 19.00 150.00 7.5/BC/22.5 7.5/BC/22.5 8/BB/24 7/CC/21 8/BB/24 AU 9",
+    "69ece81f6ff4b730e6d77bc6": {
+      "file_id": "69ece81f6ff4b730e6d77bc6",
+      "filepath": "D:\\classroom-app\\backend\\uploads\\file-1777133599250-553679119.jpeg",
+      "content": "file 1777133599250 553679119",
       "metadata": {
-        "filename": "file-1777054914770-981959681.pdf",
-        "extracted_method": "PyMuPDF"
+        "filename": "file-1777133599250-553679119.jpeg",
+        "extracted_method": "OCR",
+        "filename_clean": "file 1777133599250 553679119"
       }
     },
-    "69ebb4c9ec937ad31432077c": {
-      "file_id": "69ebb4c9ec937ad31432077c",
-      "filepath": "d:\\classroom-app\\backend\\uploads\\file-1777054921754-894679805.pdf",
-      "content": "Student Name 1 Student Name 2 Student Name 3 Project Phase \u2013 I Title Guide Prashant mahajan Kedar mule Prof.M.B.Sonje Cancer prediction Samarth Kuwar Pranav Rajput Tejas Rote Prof.G.V.Sonawane GlacierNet: A Deep-Learning Approach for Debris-Covered Glacier Mapping ARYAN AMRUT CHAVAN AMOL RAJESH SONAWANE Prof.S.S.Shaikh CampusMitra - ERP System for Colleges Nikita Sandip Bhandare Tanuja Somnath Nehere Sanika Satish Shivale Prof.S.S.Shaikh \"LifeHub\" - The All-in-One Home Routine Organizer Soham Vishwambhar Abhishek Jadhav Rajat More Prof.S.S.Shaikh Diagnosis-of-chronic-diseases-using-machine-learning SHUBHAM BHAGWAN CHAUDHARI SUMIT BALASAHEB BHADANGE Prof.S.S.Shaikh Pet Adoption & Risk Management Portal Manas Satish Shirude Dhalesh Parashram Desale Riya Jagdish Patel Prof.V.B.Bhamare CodeCrafter AI Hitesh Sujit Patil Mariya Shabbir Ghasletwala Prof.G.V.Sonawane Bhumika Atmaram Sukhadhane Prof.S.P.Khairnar SkillLink\u2014AI-Powered Local Help & Skill-Sharing Platform Achal Sharad Magar Sanchita Shirish kangane Prof.M.B.Sonje Agriculture AI Assistant Aditi Ugale Sanjana Bangar Darshan Mali Prof.M.B.Sonje Cure for sure Kalpesh Dipak Patil Rushita Vilas Chaudhari Tanvi Ramesh Shinde Prof.S.P.Khairnar Crop Recommendation System Vaishnavi Patil Ashwini Gaidhani Prof.G.V.Sonawane Smart Tourist Safety Monitoring & Incident Response System DHIRAJ VIJAY BARWAL POOJA PRATAP NIKAM - Prof.S.P.Khairnar OptiTime - The AI powerd Sceduler Pranav Ravindra Satalkar Chaitanya Bharat Bari Prof.K.T.Borse \u201cAI-Based Virtual Fitness Trainer\u201d Prajwal Shridhar Nirbhavane sumedh ravindra jadhav Prof.K.T.Borse \"AI-Powered SaaS Platform for Automated Content Generation and Resume Analysis\" Abhishek Pawar Tanmay Hirodkar Siddharth Perkar Prof.G.V.Sonawane Natasha Joseph Mondal Farhan Abubakar Attar Ishmeetkaur Bhatti Prof.M.B.Sonje Event management SOP Dhaneshwary Mahendra Kawade Khushi Sanjay Patil Pooja Sunil Rathod Prof.K.T.Borse Automated Attendance System for Rural Schools Dhaneshwary Mahendra Kawa",
+    "69ece8256ff4b730e6d77bcb": {
+      "file_id": "69ece8256ff4b730e6d77bcb",
+      "filepath": "D:\\classroom-app\\backend\\uploads\\file-1777133605948-596134992.jpeg",
+      "content": "file 1777133605948 596134992",
       "metadata": {
-        "filename": "file-1777054921754-894679805.pdf",
-        "extracted_method": "PyMuPDF"
-      }
-    },
-    "69ebb4d1ec937ad314320781": {
-      "file_id": "69ebb4d1ec937ad314320781",
-      "filepath": "d:\\classroom-app\\backend\\uploads\\file-1777054929279-654479829.pdf",
-      "content": "BHUJBAL MET% Institute of Technology B. Tech. KNOWLEDGE CITY Dear Students, Aliliated to Dr. Babasaheb Ambedkar fechnological tinversty, Lonere Department of Computer Science And Design This is to inform you that the End Semester Practical/Oral Examinations are scheduled from 22nd November 2025 to 27th November 2025. Please note the following important instructions: Students must be present 10 minutes before the exam time. NOTICE \" Students must be in proper uniform and must carry their ID card. \" Students must bring their duly signed practical files, journals, and any other required documents. Mobile phones, smart watches, or any electronic gadgets are strictly prohibited during the examination. Date: 20-|1-2025 \" Students must check their batch-wise timetable carefully and report to the respective laboratories on time.Any form of misconduct, unfair means, or malpractice will lead to strict disciplinary action. Gsonow ane \" Students are advised to ensure that all practical files are completed, neat, and verified by the respective subject faculty before the exam. Exam Coordinator \" For any queries or clarifications, students may contact the Departmental Prof.G.V.Sonawane Departmental Exam Coordinators Prof. M.B.Sonje CEO Dr.R.S.Narkhede Principal",
-      "metadata": {
-        "filename": "file-1777054929279-654479829.pdf",
-        "extracted_method": "PyMuPDF"
-      }
-    },
-    "69ebb4d8ec937ad314320786": {
-      "file_id": "69ebb4d8ec937ad314320786",
-      "filepath": "d:\\classroom-app\\backend\\uploads\\file-1777054936545-798292584.pdf",
-      "content": "Prof. Rajendra Narkhede <principal_iot@bkc.met.edu> Student Registration (Kindly forward to the students) : \"PCCOE Job Fair - 2026\" for Jobs/Apprenticeships & Internships for BE / BTech, Diploma, BSc, BCS, BCA, BA, BCom, BBA, BPharm, MBA, ITI and other course students from 2026 batch (Current final year), 2027 Batch (Pre Final year) & Already Passed Out in June /July 2025/ 2024/2023/2022/2021 batch on Saturday, 18/04/2026 at Pimpri Chinchwad college of Engineering (PCCOE), Nigdi Pune at 9:00 am II Event Organized in association with Board of Apprenticeship Training (BOAT), Maharashtra Association of TPOs (MaTPO) & All India TPO Association (AITPOA) 1 message Shitalkumar Rawandale <srawandale@gmail.com> Tue, Apr 7, 2026 at 6:34 PM To: Shitalkumar Rawandale <srawandale@gmail.com> Bcc: impMails8@googlegroups.com Dear Student, Greetings from Board of Apprenticeship Training (BOAT), WR, Mumbai-Autonomous body of Ministry of HRD, Govt. of India, CENTRAL PLACEMENT CELL of PCCOE, PCCOE&R, NMIET & NCER, Pune, Maharashtra Association of TPOs (MaTPO) & All India TPO Association (AITPOA) !! It gives us a pleasure to inform that Board of Apprenticeship Training (BOAT), WR, Mumbai and PCCOE are organizing \"PCCOE Job Fair - 2026\" in association with MaTPO & AITPOA for Jobs, Internships & one Year Apprenticeship for BE / BTech, Diploma BSc, BCS, BCA, BA, BCom, BBA, BPharm, MBA, ITI and other course students on Saturday, 18/04/2026 at Pimpri Chinchwad College of Engineering (PCCOE), Nigdi, Pune at 9:00 am. Around 45-50 companies are expected to participate in the Job Fair. The list of a few companies that have already confirmed their participation in \"PCCOE Job Fair - 2026\" on Saturday, 18/04/2026 at PCCOE, Pune can be viewed in the following link : https://docs.google.com/spreadsheets/d/1hLLbF0H6cjtcGDYR40Be3hq24JC7dUFdLg9WEul4w48/edit? usp=sharing Many other companies are supposed to confirm their participation in the coming week (around 100 companies are expected to participate).",
-      "metadata": {
-        "filename": "file-1777054936545-798292584.pdf",
-        "extracted_method": "PyMuPDF"
-      }
-    },
-    "69ebb4dfec937ad31432078b": {
-      "file_id": "69ebb4dfec937ad31432078b",
-      "filepath": "d:\\classroom-app\\backend\\uploads\\file-1777054943615-454576626.pdf",
-      "content": "Sr No 1 2 3 5 Date BHUJBAL KNOWLEDGE CITY 22/11/25 9.00 am -11.00 pm Time 24/11/25 9.00 am -11.00 pm 25/11/25 26/11/25 12.30 pm-2.30pm 12.30 pm-2.30pm 9.00 am -11.00 pm 12.30 pm-2.30pm 27/11/25 9.00 am -11.00 pm 12.30 pm-2.30pm 9.00 am -11.00 pm Batch:S1/S2 Computer Graphics Lab Batch :T3/T4 Mini Project - I| [lab 204 B/204 C] [Lab 308 B] Batch :Ss3/S4 Computer Graphics lab [Lab 204 BI204 C] Batch: S3 Fundamental of data Structure Lab [Lab 308 B] Batch : S4 Fundamental of data Structure Lab [Lab 308 B] Important Instructions: A.Y. 2025-26 Jonawae SE Prof.G.V.Sonawane MET's Institute of Technology (P) B. Tech. Ailiated to Dr. Babasaheb Ambedkar Technological University, Lonere. Computer Science and Design Practical/Oral Time table Dept. Exam Coordinator Batch : S1/S2 Fundamental of data Structure lab [lab 204 B/204 C] 1. All students must wear their I-card and proper uniform on the exam day. TE Batch : T1/T2 Mini Project - | [Lab 308 B] Prof. M. B\\Sonje CEO Batch :T1/T2 PAL/DSD Lab [lab 204BI204 C] T3/T4 PAL/DSD Lab [lab 204B/204 C] 2. Arrive at the exam center 15 minutes before the scheduled time to allow for a smooth start. Prof.S.S.Shaikh HOD Date: 20/11/2025 BE Project Phase - Group ID 1-10 Class Room 205 Project Phase -I Group ID 11-20 Class Room 205 Project Phase -I Group ID 21 Onwards Class Room 205 B1/B2 NLP/DE Lab [Lab 204 B/204 C) B2/B3 NLP/DE Lab [Lab 204 B/204 C] Dr.R.S.Narkhede Principal",
-      "metadata": {
-        "filename": "file-1777054943615-454576626.pdf",
-        "extracted_method": "PyMuPDF"
-      }
-    },
-    "69ebb4e6ec937ad314320790": {
-      "file_id": "69ebb4e6ec937ad314320790",
-      "filepath": "d:\\classroom-app\\backend\\uploads\\file-1777054950667-651900783.txt",
-      "content": "\u2705 Updated Feature List (Assignments Removed) 1. Classroom & User Management Classes / Sections Create and manage multiple classes or groups. Class dashboard showing announcements, files, polls, and members. Join class using class codes or invitations. User Roles Admin \u2014 full system control. Teacher \u2014 manages classes and communicates with students. Student \u2014 limited, secure access. Role-Based Access Control (RBAC) Students have restricted permissions. Teachers control only their classes. Admin has global control. 2. File & Document Management Upload & View Files Upload documents, images, PDFs, Word files, PPT, etc. In-app file preview (PDF viewer, image viewer). File Recovery System Soft-delete system so deleted files can be restored anytime. Trash system for recovery. Admin can override recovery permissions. File Versioning Keeps older versions of files for traceability. Class File Organization Each class has its own file library. Files can be tagged and categorized. 3. Smart Search & Auto Categorization Deep Content Search Search by: File name File content Text inside PDFs Text inside Word files Text inside images (OCR) Semantic Smart Search AI understands meaning of queries. Example: Searching \u201cexam timetable\u201d shows timetable-related files even with different names. Auto Categorization Automatically tags files: Timetables Notices Study material Exam schedules Images General files Search Filters Filter by class Filter by file type Filter by tags or category Filter by date uploaded 4. Messaging & Communication Teacher \u2192 Student Messaging Teachers send messages to individual students or entire class. Students can reply if enabled. Announcements Teachers post class-wide announcements (like Google Classroom Stream). Polls Teachers create polls/surveys. Students vote. Results shown to teacher (and optionally to students). Notifications New messages New polls Files uploaded File recovery events (restored/deleted) 5. Admin Features Admin Panel Manage all users. Create/del",
-      "metadata": {
-        "filename": "file-1777054950667-651900783.txt",
-        "extracted_method": "Direct text"
+        "filename": "file-1777133605948-596134992.jpeg",
+        "extracted_method": "OCR",
+        "filename_clean": "file 1777133605948 596134992"
       }
     }
   }

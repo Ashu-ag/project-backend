@@ -235,4 +235,52 @@ router.get('/download/:fileId', auth, async (req, res) => {
   }
 });
 
+// Delete file (teachers of the class + admins only)
+router.delete('/:fileId', auth, async (req, res) => {
+  try {
+    const file = await File.findById(req.params.fileId);
+
+    if (!file || file.isDeleted) {
+      return res.status(404).json({ success: false, message: 'File not found' });
+    }
+
+    // Check class membership
+    const classData = await Class.findById(file.class);
+    if (!classData) {
+      return res.status(404).json({ success: false, message: 'Class not found' });
+    }
+
+    const isTeacher = classData.teachers.some(
+      t => t.toString() === req.user._id.toString()
+    );
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isTeacher && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only teachers and admins can delete files'
+      });
+    }
+
+    // Soft-delete in DB
+    file.isDeleted = true;
+    await file.save();
+
+    // Also remove physical file from disk
+    const filePath = path.join(__dirname, '../', file.path);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    res.json({ success: true, message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting file',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
