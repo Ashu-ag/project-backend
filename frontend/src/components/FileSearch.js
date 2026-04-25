@@ -103,6 +103,25 @@ const FileSearch = ({ classId, onFileSelect }) => {
     }
   };
 
+  const highlightExcerpt = (excerpt, terms) => {
+    if (!excerpt) return null;
+    if (!terms || terms.length === 0) return <div className="mt-2 text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 italic">"{excerpt}"</div>;
+    
+    let highlighted = excerpt;
+    terms.forEach(term => {
+      const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${safeTerm})`, 'gi');
+      highlighted = highlighted.replace(regex, '<mark class="bg-yellow-200 text-yellow-900 px-1 rounded font-medium">$1</mark>');
+    });
+    
+    return (
+      <div 
+        className="mt-2 text-sm text-gray-700 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50 shadow-sm"
+        dangerouslySetInnerHTML={{ __html: `...${highlighted}...` }} 
+      />
+    );
+  };
+
   const hasActiveFilters = Object.values(filters).some(f => 
     Array.isArray(f) ? f.length > 0 : f !== ''
   ) || searchQuery;
@@ -228,15 +247,31 @@ const FileSearch = ({ classId, onFileSelect }) => {
                 className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
                 onClick={() => onFileSelect && onFileSelect(file)}
               >
-                <div className="flex items-center space-x-4">
-                  {getFileIcon(file.fileType)}
-                  <div>
-                    <h3 className="font-medium text-gray-900">{file.originalName}</h3>
+                <div className="flex items-start space-x-4 w-full">
+                  <div className="pt-1">{getFileIcon(file.fileType)}</div>
+                  <div className="flex-1 w-full">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium text-gray-900">{file.originalName}</h3>
+                      {file.aiScore !== undefined && (
+                        <div className="flex flex-col items-end">
+                          <span className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-sm">
+                            {Math.round(file.aiScore * 100)}% Match
+                          </span>
+                          {file.aiExtractedMethod && (
+                            <span className="text-[10px] text-gray-400 mt-1">via {file.aiExtractedMethod}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500">
                       {file.class?.name} • {file.uploadedBy?.name} • 
                       {new Date(file.createdAt).toLocaleDateString()}
                     </p>
-                    {file.description && (
+
+                    {/* Show AI excerpt if available */}
+                    {file.aiExcerpt && highlightExcerpt(file.aiExcerpt, file.aiMatchedTerms)}
+
+                    {file.description && !file.aiExcerpt && (
                       <p className="text-sm text-gray-600 mt-1">{file.description}</p>
                     )}
                     {file.aiTags && file.aiTags.length > 0 && (

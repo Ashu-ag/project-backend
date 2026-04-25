@@ -14,6 +14,10 @@ const io = socketIo(server, {
   }
 });
 
+
+
+
+
 // Also make sure you're serving the avatars directory
 app.use('/uploads/avatars', express.static('uploads/avatars'));
 
@@ -68,3 +72,5 @@ server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📚 API available at: http://localhost:${PORT}/api`);
 });
+
+

@@ -1,0 +1,15 @@
+flask
+werkzeug
+pytesseract
+pdf2image
+pillow
+python-docx
+openpyxl
+python-pptx
+pandas
+pymupdf
+scikit-learn
+sentence-transformers
+torch
+numpy
+flask-cors

@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
 const File = require('../models/File');
 const Class = require('../models/Class');
 const { auth } = require('../middleware/auth');
@@ -86,6 +87,36 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
 
     await newFile.save();
     console.log('File saved to database:', newFile);
+
+    // Notify AI Microservice to index the file
+    try {
+      const postData = JSON.stringify({
+        file_id: newFile._id.toString(),
+        filepath: path.resolve(path.join(__dirname, '../', req.file.path))
+      });
+
+      const options = {
+        hostname: 'localhost',
+        port: 5001,
+        path: '/api/index',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+
+      const aiReq = http.request(options, (aiRes) => {
+        console.log(`AI Microservice Indexing Status: ${aiRes.statusCode}`);
+      });
+      aiReq.on('error', (e) => {
+        console.error(`AI Microservice Error: ${e.message}`);
+      });
+      aiReq.write(postData);
+      aiReq.end();
+    } catch (err) {
+      console.error('Failed to notify AI microservice', err);
+    }
 
     // Populate user data
     await newFile.populate('uploadedBy', 'name email');

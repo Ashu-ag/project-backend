@@ -1,8 +1,29 @@
 const express = require('express');
+const http = require('http');
 const File = require('../models/File');
 const Class = require('../models/Class');
 const { auth } = require('../middleware/auth');
 const router = express.Router();
+
+const fetchAIResults = (query) => {
+  return new Promise((resolve, reject) => {
+    http.get(`http://localhost:5001/api/search?q=${encodeURIComponent(query)}`, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          resolve(parsed.results || []);
+        } catch (e) {
+          resolve([]);
+        }
+      });
+    }).on('error', (err) => {
+      console.error("AI Service Error:", err);
+      resolve([]); // Fallback to empty if AI fails
+    });
+  });
+};
 
 // Smart search across files
 router.get('/files', auth, async (req, res) => {
@@ -38,9 +59,31 @@ router.get('/files', auth, async (req, res) => {
       searchQuery.class = { $in: userClasses.map(c => c._id) };
     }
 
-    // Text search
+    // Text search using AI Microservice
+    let aiResults = [];
+    let aiScoreMap = {};
     if (q) {
-      searchQuery.$text = { $search: q };
+      try {
+        aiResults = await fetchAIResults(q);
+        if (aiResults && aiResults.length > 0) {
+          const aiFileIds = aiResults.map(r => r.file_id);
+          searchQuery._id = { $in: aiFileIds };
+          
+          aiResults.forEach(r => {
+             aiScoreMap[r.file_id] = {
+               score: r.score,
+               excerpt: r.excerpt,
+               matched_terms: r.matched_terms,
+               extracted_method: r.extracted_method
+             };
+          });
+        } else {
+          // Fallback to mongo text search if AI returns empty
+          searchQuery.$text = { $search: q };
+        }
+      } catch (e) {
+        searchQuery.$text = { $search: q };
+      }
     }
 
     // Category filter
@@ -66,10 +109,27 @@ router.get('/files', auth, async (req, res) => {
       searchQuery.aiTags = { $in: tagArray };
     }
 
-    const files = await File.find(searchQuery)
+    let files = await File.find(searchQuery)
       .populate('uploadedBy', 'name email avatar')
       .populate('class', 'name code color')
       .sort({ createdAt: -1 });
+
+    // Attach AI properties if available and sort by AI score
+    if (q && Object.keys(aiScoreMap).length > 0) {
+      files = files.map(file => {
+        const fileObj = file.toObject();
+        const aiData = aiScoreMap[file._id.toString()];
+        if (aiData) {
+          fileObj.aiScore = aiData.score;
+          fileObj.aiExcerpt = aiData.excerpt;
+          fileObj.aiMatchedTerms = aiData.matched_terms;
+          fileObj.aiExtractedMethod = aiData.extracted_method;
+        }
+        return fileObj;
+      });
+      // Sort by AI score descending
+      files.sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
+    }
 
     res.json({
       success: true,
