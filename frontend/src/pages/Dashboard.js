@@ -28,7 +28,7 @@ const Dashboard = () => {
 
   const fetchClasses = async () => {
     try {
-      const response = await axios.get('/classes/my-classes');
+      const response = await axios.get('classes/my-classes');
       setClasses(response.data.data.classes);
     } catch (error) {
       console.error('Error fetching classes:', error);
@@ -41,7 +41,7 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       console.log('Creating class with:', newClass);
-      const response = await axios.post('/classes', newClass);
+      const response = await axios.post('classes', newClass);
       console.log('Class created:', response.data);
       
       setClasses(prev => [response.data.data.class, ...prev]);
@@ -58,7 +58,7 @@ const Dashboard = () => {
   const handleJoinClass = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/classes/join', { code: joinCode });
+      const response = await axios.post('classes/join', { code: joinCode });
       setClasses(prev => [response.data.data.class, ...prev]);
       setJoinCode('');
       alert('Successfully joined class!');

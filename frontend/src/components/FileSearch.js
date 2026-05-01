@@ -63,7 +63,7 @@ const FileSearch = ({ classId, onFileSelect }) => {
       filters.tags.forEach(tag => params.append('tags', tag));
     }
 
-    console.log('🔍 Search API call:', `http://localhost:5000/api/search/files?${params}`);
+    console.log('🔍 Search API call:', `${axios.defaults.baseURL}/search/files?${params}`);
     
     // ✅ FIX: Remove the leading slash to avoid duplicate /api
     const response = await axios.get(`search/files?${params}`);
@@ -102,7 +102,7 @@ const FileSearch = ({ classId, onFileSelect }) => {
         return;
       }
       const response = await fetch(
-        `http://localhost:5000/api/files/download/${fileId}`,
+        `${axios.defaults.baseURL}/files/download/${fileId}`,
         { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
       );
       if (!response.ok) throw new Error('Download failed');

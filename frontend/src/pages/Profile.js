@@ -21,7 +21,7 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get('/profile/me');
+      const response = await axios.get('profile/me');
       setProfile(response.data.data.user);
       setFormData({
         name: response.data.data.user.name,
@@ -38,7 +38,7 @@ const Profile = () => {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put('/profile/update', formData);
+      const response = await axios.put('profile/update', formData);
       setProfile(response.data.data.user);
       updateUser(response.data.data.user); // Update global auth context
       setEditing(false);
@@ -70,7 +70,7 @@ const Profile = () => {
 
     setUploading(true);
     try {
-      const response = await axios.post('/profile/avatar', formData, {
+      const response = await axios.post('profile/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -132,7 +132,7 @@ const Profile = () => {
                 <div className="relative inline-block">
                   {profile.avatar ? (
                     <img
-                      src={`http://localhost:5000${profile.avatar}`}
+                      src={`${axios.defaults.baseURL.replace(/\/api\/?$/, '')}${profile.avatar}`}
                       alt="Profile"
                       className="w-32 h-32 rounded-full object-cover mx-auto border-4 border-white shadow-lg"
                     />

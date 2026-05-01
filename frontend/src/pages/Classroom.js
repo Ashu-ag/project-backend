@@ -28,7 +28,7 @@ const Classroom = () => {
 
   const fetchClassData = async () => {
     try {
-      const response = await axios.get(`/classes/${id}`);
+      const response = await axios.get(`classes/${id}`);
       setClassData(response.data.data.class);
     } catch (error) {
       console.error('Error fetching class data:', error);
@@ -37,7 +37,7 @@ const Classroom = () => {
 
   const fetchFiles = async () => {
     try {
-      const response = await axios.get(`/files/class/${id}`);
+      const response = await axios.get(`files/class/${id}`);
       setFiles(response.data.data.files);
     } catch (error) {
       console.error('Error fetching files:', error);
@@ -49,7 +49,7 @@ const Classroom = () => {
   const handleDeleteFile = async (fileId, fileName) => {
     if (!window.confirm(`Delete "${fileName}"? This cannot be undone.`)) return;
     try {
-      await axios.delete(`/files/${fileId}`);
+      await axios.delete(`files/${fileId}`);
       setFiles(prev => prev.filter(f => f._id !== fileId));
     } catch (error) {
       alert('Error deleting file: ' + (error.response?.data?.message || error.message));
@@ -67,7 +67,8 @@ const Classroom = () => {
       }
 
       // Create download URL with authorization
-      const downloadUrl = `http://localhost:5000/api/files/download/${fileId}`;
+      // Use the configured axios base URL for the download link
+      const downloadUrl = `${axios.defaults.baseURL}/files/download/${fileId}`;
       
       // Fetch the file with authorization header
       const response = await fetch(downloadUrl, {
@@ -109,7 +110,7 @@ const Classroom = () => {
     formData.append('category', uploadData.category);
 
     try {
-      const response = await axios.post('/files/upload', formData, {
+      const response = await axios.post('files/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

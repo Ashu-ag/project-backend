@@ -24,8 +24,9 @@ const ChatPanel = ({ classId, classData }) => {
   useEffect(() => {
     fetchMessages();
     
-    // Initialize Socket.io
-    const newSocket = io('http://localhost:5000');
+    // Initialize Socket.io - Derive backend URL from axios baseURL
+    const backendUrl = axios.defaults.baseURL.replace(/\/api\/?$/, '');
+    const newSocket = io(backendUrl);
     setSocket(newSocket);
 
     // Join classroom
@@ -52,7 +53,7 @@ const ChatPanel = ({ classId, classData }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(`/messages/class/${classId}`);
+      const response = await axios.get(`messages/class/${classId}`);
       setMessages(response.data.data.messages);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -66,7 +67,7 @@ const ChatPanel = ({ classId, classData }) => {
     if (!newMessage.trim()) return;
 
     try {
-      const response = await axios.post('/messages/send', {
+      const response = await axios.post('messages/send', {
         classId,
         content: newMessage,
         isAnnouncement: isAnnouncement && user.role === 'teacher'

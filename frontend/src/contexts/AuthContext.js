@@ -4,11 +4,14 @@ import axios from 'axios';
 // Configure API base URL
 let apiBaseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Auto-fix: Ensure it ends with /api if it's a remote URL and /api is missing
+// Auto-fix: Ensure it ends with /api/ if it's a remote URL and /api is missing
 if (apiBaseURL.startsWith('http') && !apiBaseURL.endsWith('/api') && !apiBaseURL.endsWith('/api/')) {
-  apiBaseURL = apiBaseURL.replace(/\/$/, '') + '/api';
+  apiBaseURL = apiBaseURL.replace(/\/$/, '') + '/api/';
+} else if (!apiBaseURL.endsWith('/')) {
+  apiBaseURL += '/';
 }
 
+console.log('🔌 API Base URL configured as:', apiBaseURL);
 axios.defaults.baseURL = apiBaseURL;
 
 const AuthContext = createContext();
@@ -40,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     if (token) {
       try {
-        const response = await axios.get('/auth/me');
+        const response = await axios.get('auth/me');
         const userData = response.data.data.user;
         
         // Check if user is still active
@@ -66,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
  const login = async (email, password) => {
   try {
-    const response = await axios.post('/auth/login', { email, password });
+    const response = await axios.post('auth/login', { email, password });
     const { user, token } = response.data.data;
     
     localStorage.setItem('token', token);
@@ -95,7 +98,7 @@ export const AuthProvider = ({ children }) => {
 };
   const register = async (userData) => {
     try {
-      const response = await axios.post('/auth/register', userData);
+      const response = await axios.post('auth/register', userData);
       const { user, token } = response.data.data;
       
       localStorage.setItem('token', token);

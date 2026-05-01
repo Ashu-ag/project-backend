@@ -59,10 +59,10 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const [usersRes, classesRes, filesRes, messagesRes] = await Promise.all([
-        axios.get('/admin/users'),
-        axios.get('/admin/classes'),
-        axios.get('/admin/files'),
-        axios.get('/admin/messages')
+        axios.get('admin/users'),
+        axios.get('admin/classes'),
+        axios.get('admin/files'),
+        axios.get('admin/messages')
       ]);
 
       setUsers(usersRes.data.data.users);
@@ -89,7 +89,7 @@ const AdminDashboard = () => {
   const handleCreateUser = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/admin/users', formData);
+      const response = await axios.post('admin/users', formData);
       setUsers(prev => [response.data.data.user, ...prev]);
       setShowUserModal(false);
       setFormData({ name: '', email: '', role: 'student', password: '', bio: '' });
@@ -103,7 +103,7 @@ const AdminDashboard = () => {
 
   const handleUpdateUser = async (userId) => {
     try {
-      const response = await axios.put(`/admin/users/${userId}`, formData);
+      const response = await axios.put(`admin/users/${userId}`, formData);
       setUsers(prev => prev.map(u => u._id === userId ? response.data.data.user : u));
       setShowUserModal(false);
       setEditMode(false);
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      await axios.delete(`/admin/users/${userId}`);
+      await axios.delete(`admin/users/${userId}`);
       setUsers(prev => prev.filter(u => u._id !== userId));
       alert('User deleted successfully!');
       fetchDashboardData();
@@ -135,7 +135,7 @@ const AdminDashboard = () => {
   try {
     console.log('🔄 Toggling status for user:', userId, 'Current status:', currentStatus);
     
-    const response = await axios.patch(`/admin/users/${userId}/toggle-status`);
+    const response = await axios.patch(`admin/users/${userId}/toggle-status`);
     console.log('✅ Toggle response:', response.data);
     
     // Update the users list with the updated user
@@ -171,7 +171,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      await axios.delete(`/admin/classes/${classId}`);
+      await axios.delete(`admin/classes/${classId}`);
       setClasses(prev => prev.filter(c => c._id !== classId));
       alert('Class deleted successfully!');
       fetchDashboardData();
@@ -397,7 +397,7 @@ const AdminDashboard = () => {
                         <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             {u.avatar ? (
-                              <img src={`http://localhost:5000${u.avatar}`} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                              <img src={`${axios.defaults.baseURL.replace(/\/api\/?$/, '')}${u.avatar}`} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
                             ) : (
                               <div style={{
                                 width: '32px', height: '32px', borderRadius: '50%',

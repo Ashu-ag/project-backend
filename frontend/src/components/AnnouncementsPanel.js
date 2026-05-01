@@ -17,7 +17,7 @@ const AnnouncementsPanel = ({ classId, classData }) => {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await axios.get(`/messages/class/${classId}`);
+      const response = await axios.get(`messages/class/${classId}`);
       // Filter only announcements and sort by latest first
       const announcementMessages = response.data.data.messages
         .filter(msg => msg.isAnnouncement)
@@ -35,7 +35,7 @@ const AnnouncementsPanel = ({ classId, classData }) => {
     if (!newAnnouncement.trim()) return;
 
     try {
-      await axios.post('/messages/send', {
+      await axios.post('messages/send', {
         classId,
         content: newAnnouncement,
         isAnnouncement: true
@@ -54,7 +54,7 @@ const AnnouncementsPanel = ({ classId, classData }) => {
   const handleDeleteAnnouncement = async (announcementId) => {
     if (!window.confirm('Delete this announcement? This cannot be undone.')) return;
     try {
-      await axios.delete(`/messages/${announcementId}`);
+      await axios.delete(`messages/${announcementId}`);
       // Optimistic update — remove from local state immediately
       setAnnouncements(prev => prev.filter(a => a._id !== announcementId));
     } catch (error) {
