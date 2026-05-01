@@ -1,6 +1,16 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
+// Configure API base URL
+let apiBaseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+// Auto-fix: Ensure it ends with /api if it's a remote URL and /api is missing
+if (apiBaseURL.startsWith('http') && !apiBaseURL.endsWith('/api') && !apiBaseURL.endsWith('/api/')) {
+  apiBaseURL = apiBaseURL.replace(/\/$/, '') + '/api';
+}
+
+axios.defaults.baseURL = apiBaseURL;
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -25,8 +35,6 @@ export const AuthProvider = ({ children }) => {
   if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
-
-  axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
   const checkAuth = async () => {
