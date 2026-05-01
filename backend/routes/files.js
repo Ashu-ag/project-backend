@@ -95,9 +95,10 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
         filepath: path.resolve(path.join(__dirname, '../', req.file.path))
       });
 
+      const ocrUrl = new URL(process.env.OCR_SERVICE_URL || 'http://localhost:5001');
       const options = {
-        hostname: 'localhost',
-        port: 5001,
+        hostname: ocrUrl.hostname,
+        port: ocrUrl.port,
         path: '/api/index',
         method: 'POST',
         headers: {

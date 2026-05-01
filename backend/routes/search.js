@@ -7,7 +7,8 @@ const router = express.Router();
 
 const fetchAIResults = (query) => {
   return new Promise((resolve, reject) => {
-    http.get(`http://localhost:5001/api/search?q=${encodeURIComponent(query)}`, (res) => {
+    const ocrBase = process.env.OCR_SERVICE_URL || 'http://localhost:5001';
+    http.get(`${ocrBase}/api/search?q=${encodeURIComponent(query)}`, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {

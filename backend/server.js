@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*", // In production, you should restrict this to your domain
     methods: ["GET", "POST"]
   }
 });
