@@ -140,8 +140,8 @@ const ChatPanel = ({ classId, classData }) => {
           </div>
         ) : (
           messages.map((message) => {
-            const isOwn = message.sender._id === user.id;
-            const isTeacher = message.sender.role === 'teacher';
+            const isOwn = message.sender && (message.sender._id === user.id || message.sender.id === user.id);
+            const isTeacher = message.sender && message.sender.role === 'teacher';
             const isAnnouncement = message.isAnnouncement;
 
             // Bubble color logic
@@ -185,7 +185,7 @@ const ChatPanel = ({ classId, classData }) => {
                   >
                     {isTeacher
                       ? <GraduationCap size={16} />
-                      : message.sender.name?.charAt(0).toUpperCase()}
+                      : (message.sender ? message.sender.name?.charAt(0).toUpperCase() : '?')}
                   </div>
                 )}
 
@@ -212,7 +212,7 @@ const ChatPanel = ({ classId, classData }) => {
                   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'4px', gap:'8px' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap' }}>
                       <span style={{ fontSize:'13px', fontWeight:'700', color: nameColor }}>
-                        {message.sender.name}{isOwn && ' (You)'}
+                        {(message.sender ? message.sender.name : 'Unknown User')}{isOwn && ' (You)'}
                       </span>
                       {/* Teacher badge */}
                       {isTeacher && (
