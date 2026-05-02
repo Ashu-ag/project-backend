@@ -25,7 +25,7 @@ const ChatPanel = ({ classId, classData }) => {
     fetchMessages();
     
     // Initialize Socket.io - Derive backend URL from axios baseURL
-    const backendUrl = axios.defaults.baseURL.replace(/\/api\/?$/, '');
+    const backendUrl = axios.defaults.baseURL.replace(/\/api\/?$/, '').replace(/\/$/, '');
     const newSocket = io(backendUrl);
     setSocket(newSocket);
 

@@ -4,10 +4,18 @@ import axios from 'axios';
 // Configure API base URL
 let apiBaseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Auto-fix: Ensure it ends with /api/ if it's a remote URL and /api is missing
-if (apiBaseURL.startsWith('http') && !apiBaseURL.endsWith('/api') && !apiBaseURL.endsWith('/api/')) {
-  apiBaseURL = apiBaseURL.replace(/\/$/, '') + '/api/';
+// Auto-fix: Ensure the URL is properly formatted for the API
+if (apiBaseURL.startsWith('http')) {
+  // If the URL doesn't contain /api, append it
+  if (!apiBaseURL.toLowerCase().includes('/api')) {
+    apiBaseURL = apiBaseURL.replace(/\/$/, '') + '/api/';
+  } 
+  // Ensure it ends with a trailing slash
+  if (!apiBaseURL.endsWith('/')) {
+    apiBaseURL += '/';
+  }
 } else if (!apiBaseURL.endsWith('/')) {
+  // Fallback for non-http URLs or local dev
   apiBaseURL += '/';
 }
 

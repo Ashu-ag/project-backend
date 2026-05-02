@@ -397,7 +397,7 @@ const AdminDashboard = () => {
                         <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             {u.avatar ? (
-                              <img src={`${axios.defaults.baseURL.replace(/\/api\/?$/, '')}${u.avatar}`} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                              <img src={`${axios.defaults.baseURL.replace(/\/api\/?$/, '').replace(/\/$/, '')}${u.avatar}`} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
                             ) : (
                               <div style={{
                                 width: '32px', height: '32px', borderRadius: '50%',

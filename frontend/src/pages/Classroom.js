@@ -68,7 +68,7 @@ const Classroom = () => {
 
       // Create download URL with authorization
       // Use the configured axios base URL for the download link
-      const downloadUrl = `${axios.defaults.baseURL}/files/download/${fileId}`;
+      const downloadUrl = `${axios.defaults.baseURL.replace(/\/$/, '')}/files/download/${fileId}`;
       
       // Fetch the file with authorization header
       const response = await fetch(downloadUrl, {

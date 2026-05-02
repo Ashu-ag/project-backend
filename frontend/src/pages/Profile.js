@@ -132,7 +132,7 @@ const Profile = () => {
                 <div className="relative inline-block">
                   {profile.avatar ? (
                     <img
-                      src={`${axios.defaults.baseURL.replace(/\/api\/?$/, '')}${profile.avatar}`}
+                      src={`${axios.defaults.baseURL.replace(/\/api\/?$/, '').replace(/\/$/, '')}${profile.avatar}`}
                       alt="Profile"
                       className="w-32 h-32 rounded-full object-cover mx-auto border-4 border-white shadow-lg"
                     />
