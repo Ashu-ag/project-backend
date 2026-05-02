@@ -10,12 +10,12 @@ console.log('📡 Initial REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
 if (apiBaseURL.startsWith('http')) {
   // Remove any existing trailing slashes first
   let normalized = apiBaseURL.replace(/\/+$/, '');
-  
+
   // If it doesn't end with /api, append it
   if (!normalized.toLowerCase().endsWith('/api')) {
     normalized += '/api';
   }
-  
+
   // Ensure exactly one trailing slash
   apiBaseURL = normalized + '/';
 } else {
@@ -25,7 +25,7 @@ if (apiBaseURL.startsWith('http')) {
   }
 }
 
-console.log('🔌 Final API Base URL (v2.1):', apiBaseURL);
+console.log('🔌 Final API Base URL:', apiBaseURL);
 
 // Create a dedicated axios instance
 export const api = axios.create({
@@ -58,78 +58,78 @@ export const AuthProvider = ({ children }) => {
   }
 
   useEffect(() => {
-  const checkAuth = async () => {
-    if (token) {
-      try {
-        const response = await api.get('auth/me');
-        const userData = response.data.data.user;
-        
-        // Check if user is still active
-        if (userData.isActive === false) {
-          // If deactivated, logout
-          logout();
-          window.location.href = '/login?reason=deactivated';
-          return;
-        }
-        
-        setUser(userData);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        localStorage.removeItem('token');
-        delete api.defaults.headers.common['Authorization'];
-      }
-    }
-    setLoading(false);
-  };
+    const checkAuth = async () => {
+      if (token) {
+        try {
+          const response = await api.get('auth/me');
+          const userData = response.data.data.user;
 
-  checkAuth();
-}, [token]);
+          // Check if user is still active
+          if (userData.isActive === false) {
+            // If deactivated, logout
+            logout();
+            window.location.href = '/login?reason=deactivated';
+            return;
+          }
+
+          setUser(userData);
+        } catch (error) {
+          console.error('Auth check failed:', error);
+          localStorage.removeItem('token');
+          delete api.defaults.headers.common['Authorization'];
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, [token]);
 
   const login = async (email, password) => {
     console.log(`🔐 Attempting login at: ${api.defaults.baseURL}auth/login for user: ${email}`);
     try {
       const response = await api.post('auth/login', { email, password });
-    const { user, token } = response.data.data;
-    
-    localStorage.setItem('token', token);
-    setToken(token);
-    setUser(user);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Login error:', error);
-    const message = error.response?.data?.message || 'Login failed';
-    
-    // Special handling for deactivated accounts
-    if (message.includes('deactivated')) {
-      return { 
-        success: false, 
-        message: 'Your account has been deactivated. Please contact an administrator.' 
-      };
-    }
-    
-    return { 
-      success: false, 
-      message: message
-    };
-  }
-};
-  const register = async (userData) => {
-    try {
-      const response = await api.post('auth/register', userData);
       const { user, token } = response.data.data;
-      
+
       localStorage.setItem('token', token);
       setToken(token);
       setUser(user);
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
+      console.error('Login error:', error);
+      const message = error.response?.data?.message || 'Login failed';
+
+      // Special handling for deactivated accounts
+      if (message.includes('deactivated')) {
+        return {
+          success: false,
+          message: 'Your account has been deactivated. Please contact an administrator.'
+        };
+      }
+
+      return {
+        success: false,
+        message: message
+      };
+    }
+  };
+  const register = async (userData) => {
+    try {
+      const response = await api.post('auth/register', userData);
+      const { user, token } = response.data.data;
+
+      localStorage.setItem('token', token);
+      setToken(token);
+      setUser(user);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed'
       };
     }
   };
