@@ -1,25 +1,31 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
-// Configure API base URL
+// Configure API base URL - extremely robust normalization
 let apiBaseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Auto-fix: Ensure the URL is properly formatted for the API
+console.log('📡 Initial REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+
+// Normalize the URL
 if (apiBaseURL.startsWith('http')) {
-  // If the URL doesn't contain /api, append it
-  if (!apiBaseURL.toLowerCase().includes('/api')) {
-    apiBaseURL = apiBaseURL.replace(/\/$/, '') + '/api/';
-  } 
-  // Ensure it ends with a trailing slash
+  // Remove any existing trailing slashes first
+  let normalized = apiBaseURL.replace(/\/+$/, '');
+  
+  // If it doesn't end with /api, append it
+  if (!normalized.toLowerCase().endsWith('/api')) {
+    normalized += '/api';
+  }
+  
+  // Ensure exactly one trailing slash
+  apiBaseURL = normalized + '/';
+} else {
+  // Handle relative paths like /api or localhost without http
   if (!apiBaseURL.endsWith('/')) {
     apiBaseURL += '/';
   }
-} else if (!apiBaseURL.endsWith('/')) {
-  // Fallback for non-http URLs or local dev
-  apiBaseURL += '/';
 }
 
-console.log('🔌 API Base URL configured as:', apiBaseURL);
+console.log('🔌 Final API Base URL:', apiBaseURL);
 axios.defaults.baseURL = apiBaseURL;
 
 const AuthContext = createContext();
@@ -75,9 +81,10 @@ export const AuthProvider = ({ children }) => {
   checkAuth();
 }, [token]);
 
- const login = async (email, password) => {
-  try {
-    const response = await axios.post('auth/login', { email, password });
+  const login = async (email, password) => {
+    console.log(`🔐 Attempting login at: ${axios.defaults.baseURL}auth/login for user: ${email}`);
+    try {
+      const response = await axios.post('auth/login', { email, password });
     const { user, token } = response.data.data;
     
     localStorage.setItem('token', token);
