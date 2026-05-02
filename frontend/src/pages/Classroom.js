@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, api } from '../contexts/AuthContext';
 import axios from 'axios';
 import { Upload, FileText, Users, MessageSquare, Download, BookOpen, Trash2 } from 'lucide-react';
 import ChatPanel from '../components/ChatPanel';
@@ -28,7 +28,7 @@ const Classroom = () => {
 
   const fetchClassData = async () => {
     try {
-      const response = await axios.get(`classes/${id}`);
+      const response = await api.get(`classes/${id}`);
       setClassData(response.data.data.class);
     } catch (error) {
       console.error('Error fetching class data:', error);
@@ -37,7 +37,7 @@ const Classroom = () => {
 
   const fetchFiles = async () => {
     try {
-      const response = await axios.get(`files/class/${id}`);
+      const response = await api.get(`files/class/${id}`);
       setFiles(response.data.data.files);
     } catch (error) {
       console.error('Error fetching files:', error);
@@ -49,7 +49,7 @@ const Classroom = () => {
   const handleDeleteFile = async (fileId, fileName) => {
     if (!window.confirm(`Delete "${fileName}"? This cannot be undone.`)) return;
     try {
-      await axios.delete(`files/${fileId}`);
+      await api.delete(`files/${fileId}`);
       setFiles(prev => prev.filter(f => f._id !== fileId));
     } catch (error) {
       alert('Error deleting file: ' + (error.response?.data?.message || error.message));
@@ -68,7 +68,7 @@ const Classroom = () => {
 
       // Create download URL with authorization
       // Use the configured axios base URL for the download link
-      const downloadUrl = `${axios.defaults.baseURL.replace(/\/$/, '')}/files/download/${fileId}`;
+      const downloadUrl = `${api.defaults.baseURL.replace(/\/$/, '')}/files/download/${fileId}`;
       
       // Fetch the file with authorization header
       const response = await fetch(downloadUrl, {
@@ -110,7 +110,7 @@ const Classroom = () => {
     formData.append('category', uploadData.category);
 
     try {
-      const response = await axios.post('files/upload', formData, {
+      const response = await api.post('files/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

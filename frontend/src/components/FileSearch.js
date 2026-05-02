@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../contexts/AuthContext';
 import axios from 'axios';
 import { Search, Filter, X, FileText, Image, Presentation, Download, Table, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -42,7 +43,7 @@ const FileSearch = ({ classId, onFileSelect }) => {
   try {
     // ✅ FIX: Remove the leading slash
     const url = classId ? `search/filters/${classId}` : 'search/filters';
-    const response = await axios.get(url);
+    const response = await api.get(url);
     setAvailableFilters(response.data.data.filters);
   } catch (error) {
     console.error('Error fetching filters:', error);
@@ -63,10 +64,10 @@ const FileSearch = ({ classId, onFileSelect }) => {
       filters.tags.forEach(tag => params.append('tags', tag));
     }
 
-    console.log('🔍 Search API call:', `${axios.defaults.baseURL.replace(/\/$/, '')}/search/files?${params}`);
+    console.log('🔍 Search API call:', `${api.defaults.baseURL.replace(/\/$/, '')}/search/files?${params}`);
     
     // ✅ FIX: Remove the leading slash to avoid duplicate /api
-    const response = await axios.get(`search/files?${params}`);
+    const response = await api.get(`search/files?${params}`);
     
     console.log('📦 Search response:', response.data);
     console.log('📁 Files found:', response.data.data.files);
@@ -102,7 +103,7 @@ const FileSearch = ({ classId, onFileSelect }) => {
         return;
       }
       const response = await fetch(
-        `${axios.defaults.baseURL.replace(/\/$/, '')}/files/download/${fileId}`,
+        `${api.defaults.baseURL.replace(/\/$/, '')}/files/download/${fileId}`,
         { method: 'GET', headers: { Authorization: `Bearer ${token}` } }
       );
       if (!response.ok) throw new Error('Download failed');

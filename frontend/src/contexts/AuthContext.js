@@ -26,7 +26,11 @@ if (apiBaseURL.startsWith('http')) {
 }
 
 console.log('🔌 Final API Base URL:', apiBaseURL);
-axios.defaults.baseURL = apiBaseURL;
+
+// Create a dedicated axios instance
+export const api = axios.create({
+  baseURL: apiBaseURL
+});
 
 const AuthContext = createContext();
 
@@ -48,16 +52,16 @@ export const AuthProvider = ({ children }) => {
     setUser(updatedUser);
   };
 
-  // Set axios default headers
+  // Set api instance headers
   if (token) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
   useEffect(() => {
   const checkAuth = async () => {
     if (token) {
       try {
-        const response = await axios.get('auth/me');
+        const response = await api.get('auth/me');
         const userData = response.data.data.user;
         
         // Check if user is still active
@@ -72,7 +76,7 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Auth check failed:', error);
         localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
+        delete api.defaults.headers.common['Authorization'];
       }
     }
     setLoading(false);
@@ -82,15 +86,15 @@ export const AuthProvider = ({ children }) => {
 }, [token]);
 
   const login = async (email, password) => {
-    console.log(`🔐 Attempting login at: ${axios.defaults.baseURL}auth/login for user: ${email}`);
+    console.log(`🔐 Attempting login at: ${api.defaults.baseURL}auth/login for user: ${email}`);
     try {
-      const response = await axios.post('auth/login', { email, password });
+      const response = await api.post('auth/login', { email, password });
     const { user, token } = response.data.data;
     
     localStorage.setItem('token', token);
     setToken(token);
     setUser(user);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     
     return { success: true };
   } catch (error) {
@@ -113,13 +117,13 @@ export const AuthProvider = ({ children }) => {
 };
   const register = async (userData) => {
     try {
-      const response = await axios.post('auth/register', userData);
+      const response = await api.post('auth/register', userData);
       const { user, token } = response.data.data;
       
       localStorage.setItem('token', token);
       setToken(token);
       setUser(user);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       return { success: true };
     } catch (error) {
@@ -134,7 +138,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
-    delete axios.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
   };
 
   // ✅ Now updateUser is defined before being used in value object

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, api } from '../contexts/AuthContext';
 import axios from 'axios';
 import { Send, Megaphone, Users, GraduationCap } from 'lucide-react';
 import io from 'socket.io-client';
@@ -25,7 +25,7 @@ const ChatPanel = ({ classId, classData }) => {
     fetchMessages();
     
     // Initialize Socket.io - Derive backend URL from axios baseURL
-    const backendUrl = axios.defaults.baseURL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+    const backendUrl = api.defaults.baseURL.replace(/\/api\/?$/, '').replace(/\/$/, '');
     const newSocket = io(backendUrl);
     setSocket(newSocket);
 
@@ -53,7 +53,7 @@ const ChatPanel = ({ classId, classData }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(`messages/class/${classId}`);
+      const response = await api.get(`messages/class/${classId}`);
       setMessages(response.data.data.messages);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -67,7 +67,7 @@ const ChatPanel = ({ classId, classData }) => {
     if (!newMessage.trim()) return;
 
     try {
-      const response = await axios.post('messages/send', {
+      const response = await api.post('messages/send', {
         classId,
         content: newMessage,
         isAnnouncement: isAnnouncement && user.role === 'teacher'
