@@ -25,7 +25,7 @@ if (apiBaseURL.startsWith('http')) {
   }
 }
 
-console.log('🔌 Final API Base URL:', apiBaseURL);
+console.log('🔌 Final API Base URL (v2.2):', apiBaseURL);
 
 // Create a dedicated axios instance
 export const api = axios.create({
