@@ -169,42 +169,44 @@ const FileSearch = ({ classId, onFileSelect }) => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       {/* Search Header */}
       <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
             <input
               type="text"
-              placeholder="Search files by name, content, or tags..."
+              placeholder="Search files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-9 md:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base"
             />
           </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
-              showFilters 
-                ? 'bg-blue-100 border-blue-300 text-blue-700' 
-                : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Filters
-            {hasActiveFilters && (
-              <span className="ml-2 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {Object.values(filters).filter(f => Array.isArray(f) ? f.length > 0 : f !== '').length + (searchQuery ? 1 : 0)}
-              </span>
-            )}
-          </button>
-          {hasActiveFilters && (
+          <div className="flex items-center gap-2">
             <button
-              onClick={clearFilters}
-              className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-800"
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex-1 sm:flex-none flex items-center justify-center px-4 py-2 rounded-lg border transition-colors text-sm md:text-base ${
+                showFilters 
+                  ? 'bg-blue-100 border-blue-300 text-blue-700' 
+                  : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+              }`}
             >
-              <X className="w-4 h-4 mr-1" />
-              Clear
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+              {hasActiveFilters && (
+                <span className="ml-2 bg-blue-500 text-white text-[10px] rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center">
+                  {Object.values(filters).filter(f => Array.isArray(f) ? f.length > 0 : f !== '').length + (searchQuery ? 1 : 0)}
+                </span>
+              )}
             </button>
-          )}
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center px-2 py-2 text-gray-600 hover:text-gray-800 text-sm"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Filters Panel */}
@@ -291,27 +293,29 @@ const FileSearch = ({ classId, onFileSelect }) => {
             {files.map(file => (
               <div
                 key={file._id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                className="flex flex-col p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer gap-3"
                 onClick={() => onFileSelect && onFileSelect(file)}
               >
-                <div className="flex items-start space-x-4 w-full">
-                  <div className="pt-1">{getFileIcon(file.fileType)}</div>
-                  <div className="flex-1 w-full">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium text-gray-900">{file.originalName}</h3>
+                <div className="flex items-start space-x-3 md:space-x-4">
+                  <div className="pt-1 flex-shrink-0">{getFileIcon(file.fileType)}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <h3 className="font-medium text-gray-900 text-sm md:text-base truncate">{file.originalName}</h3>
                       {file.aiScore !== undefined && (
-                        <div className="flex flex-col items-end">
-                          <span className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-sm">
+                        <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-1 flex-shrink-0">
+                          <span className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[10px] md:text-xs px-2 py-1 rounded-full font-semibold shadow-sm whitespace-nowrap">
                             {Math.round(file.aiScore * 100)}% Match
                           </span>
                           {file.aiExtractedMethod && (
-                            <span className="text-[10px] text-gray-400 mt-1">via {file.aiExtractedMethod}</span>
+                            <span className="text-[9px] md:text-[10px] text-gray-400">via {file.aiExtractedMethod}</span>
                           )}
                         </div>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500">
-                      {file.class?.name} • {file.uploadedBy?.name} • 
+                    <p className="text-xs md:text-sm text-gray-500 truncate mt-1">
+                      {file.class?.name} • {file.uploadedBy?.name}
+                    </p>
+                    <p className="text-[10px] md:text-xs text-gray-400">
                       {new Date(file.createdAt).toLocaleDateString()}
                     </p>
 
@@ -319,64 +323,50 @@ const FileSearch = ({ classId, onFileSelect }) => {
                     {file.aiExcerpt && highlightExcerpt(file.aiExcerpt, file.aiMatchedTerms)}
 
                     {file.description && !file.aiExcerpt && (
-                      <p className="text-sm text-gray-600 mt-1">{file.description}</p>
+                      <p className="text-xs md:text-sm text-gray-600 mt-1 line-clamp-1">{file.description}</p>
                     )}
                     {file.aiTags && file.aiTags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {file.aiTags.slice(0, 3).map(tag => (
                           <span
                             key={tag}
-                            className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                            className="bg-blue-100 text-blue-800 text-[10px] px-1.5 py-0.5 rounded"
                           >
                             {tag}
                           </span>
                         ))}
-                        {file.aiTags.length > 3 && (
-                          <span className="text-gray-500 text-xs">
-                            +{file.aiTags.length - 3} more
-                          </span>
-                        )}
                       </div>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center space-x-2" onClick={e => e.stopPropagation()}>
-                  <span className="bg-gray-100 px-2 py-1 rounded text-xs capitalize">
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100" onClick={e => e.stopPropagation()}>
+                  <span className="bg-gray-100 px-2 py-0.5 rounded text-[10px] md:text-xs capitalize font-medium text-gray-600">
                     {file.category}
                   </span>
                   <button
                     onClick={(e) => handleDownload(e, file._id, file.originalName)}
                     disabled={downloadingId === file._id}
-                    title="Download file"
+                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-bold text-[11px] md:text-xs transition-all shadow-sm min-w-[100px]"
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '5px',
-                      padding: '6px 12px', borderRadius: '8px', border: 'none',
-                      cursor: downloadingId === file._id ? 'not-allowed' : 'pointer',
-                      fontWeight: '600', fontSize: '12px',
                       background: downloadStatus[file._id] === 'ok'
                         ? 'linear-gradient(135deg,#22c55e,#16a34a)'
                         : downloadStatus[file._id] === 'error'
                         ? 'linear-gradient(135deg,#ef4444,#dc2626)'
                         : downloadingId === file._id
-                        ? '#e0e7ff'
+                        ? '#f3f4f6'
                         : 'linear-gradient(135deg,#6366f1,#8b5cf6)',
-                      color: '#fff',
-                      boxShadow: downloadingId === file._id ? 'none' : '0 2px 8px rgba(99,102,241,0.35)',
-                      transition: 'all 0.2s ease',
-                      minWidth: '90px', justifyContent: 'center'
+                      color: downloadingId === file._id ? '#9ca3af' : '#fff',
+                      cursor: downloadingId === file._id ? 'not-allowed' : 'pointer',
                     }}
                   >
                     {downloadingId === file._id ? (
-                      <>
-                        <div style={{ width: '12px', height: '12px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-                        <span style={{ color: '#6366f1' }}>Loading...</span>
-                      </>
+                      <div className="w-3 h-3 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
                     ) : downloadStatus[file._id] === 'ok' ? (
-                      <><CheckCircle size={13} /> Downloaded</>
+                      <><CheckCircle size={12} /> OK</>
                     ) : downloadStatus[file._id] === 'error' ? (
-                      <><AlertCircle size={13} /> Failed</>
+                      <><AlertCircle size={12} /> Error</>
                     ) : (
-                      <><Download size={13} /> Download</>
+                      <><Download size={12} /> Download</>
                     )}
                   </button>
                 </div>

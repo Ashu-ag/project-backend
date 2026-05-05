@@ -149,38 +149,35 @@ const Classroom = () => {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Class Header */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <div 
-          className="h-4 rounded-t-lg mb-4"
+          className="h-3 md:h-4 rounded-t-lg mb-4"
           style={{ backgroundColor: classData.color }}
         ></div>
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 truncate">
               {classData.name}
             </h1>
-            <p className="text-gray-600 mb-4">
+            <p className="text-sm md:text-base text-gray-600 mb-4 line-clamp-2 md:line-clamp-none">
               {classData.description || 'No description provided.'}
             </p>
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 text-xs md:text-sm text-gray-500">
               <div className="flex items-center">
-                <Users className="w-4 h-4 mr-1" />
-
-                 <span>
+                <Users className="w-4 h-4 mr-1 flex-shrink-0" />
+                 <span className="truncate">
                     {classData.teachers?.map(t => t.name).join(', ')} • 
                     {classData.students?.length || 0} students
                   </span>
-
-
               </div>
-              <span>Code: {classData.code}</span>
+              <span className="bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Code: {classData.code}</span>
             </div>
           </div>
           
           {user?.role === 'teacher' && (
             <button
               onClick={() => setShowUploadModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+              className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center whitespace-nowrap"
             >
               <Upload className="w-4 h-4 mr-2" />
               Upload File
@@ -231,33 +228,35 @@ const Classroom = () => {
             }}
           >
             {files.map(file => (
-              <div key={file._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <div className="flex items-center space-x-4">
-                  <FileText className="w-8 h-8 text-blue-500" />
-                  <div>
-                    <h3 className="font-medium text-gray-900">
+              <div key={file._id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 md:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 gap-3">
+                <div className="flex items-start space-x-3 md:space-x-4 min-w-0">
+                  <div className="bg-blue-50 p-2 rounded-lg flex-shrink-0">
+                    <FileText className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-medium text-gray-900 text-sm md:text-base truncate">
                       {file.originalName}
                     </h3>
-                    <p className="text-sm text-gray-500">
-                      Uploaded by {file.uploadedBy?.name} • 
+                    <p className="text-xs text-gray-500 truncate">
+                      By {file.uploadedBy?.name} • 
                       {new Date(file.createdAt).toLocaleDateString()} • 
                       {(file.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                     {file.description && (
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-xs md:text-sm text-gray-600 mt-1 line-clamp-1">
                         {file.description}
                       </p>
                     )}
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <span className="bg-gray-100 px-2 py-1 rounded text-xs capitalize">
+                <div className="flex items-center justify-end space-x-2 flex-shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0">
+                  <span className="bg-gray-100 px-2 py-1 rounded text-[10px] md:text-xs capitalize font-medium text-gray-600">
                     {file.category}
                   </span>
                   <button
                     onClick={() => handleDownload(file._id, file.originalName)}
-                    className="p-2 bg-gray-200 text-gray-900 rounded-lg font-medium transition-colors duration-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    className="p-1.5 md:p-2 bg-gray-100 text-gray-700 rounded-lg transition-colors hover:bg-gray-200"
                     title="Download"
                   >
                     <Download className="w-4 h-4" />
@@ -265,7 +264,7 @@ const Classroom = () => {
                   {(user?.role === 'teacher' || user?.role === 'admin') && (
                     <button
                       onClick={() => handleDeleteFile(file._id, file.originalName)}
-                      className="p-2 bg-red-100 text-red-600 rounded-lg font-medium transition-colors duration-200 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+                      className="p-1.5 md:p-2 bg-red-50 text-red-600 rounded-lg transition-colors hover:bg-red-100"
                       title="Delete file"
                     >
                       <Trash2 className="w-4 h-4" />

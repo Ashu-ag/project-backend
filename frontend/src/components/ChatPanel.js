@@ -101,23 +101,23 @@ const ChatPanel = ({ classId, classData }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       {/* Chat Header */}
-      <div className="border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-            <Users className="w-5 h-5 mr-2" />
+      <div className="border-b border-gray-200 p-3 md:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 className="text-base md:text-lg font-semibold text-gray-900 flex items-center">
+            <Users className="w-5 h-5 mr-2 text-blue-600" />
             Class Chat
           </h3>
           {user.role === 'teacher' && (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
               <input
                 type="checkbox"
                 id="announcement"
                 checked={isAnnouncement}
                 onChange={(e) => setIsAnnouncement(e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
               />
-              <label htmlFor="announcement" className="flex items-center text-sm text-gray-700">
-                <Megaphone className="w-4 h-4 mr-1" />
+              <label htmlFor="announcement" className="flex items-center text-xs md:text-sm text-gray-700 font-medium cursor-pointer">
+                <Megaphone className="w-3 h-3 md:w-4 md:h-4 mr-1 text-amber-500" />
                 Announcement
               </label>
             </div>
@@ -192,12 +192,13 @@ const ChatPanel = ({ classId, classData }) => {
                 {/* Bubble */}
                 <div
                   style={{
-                    maxWidth: '340px',
-                    padding: '10px 14px',
+                    maxWidth: '85%',
+                    padding: '8px 12px md:padding: 10px 14px',
                     borderRadius: isOwn ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                     background: bubbleBg,
                     border: `1px solid ${bubbleBorder}`,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.07)'
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
+                    position: 'relative'
                   }}
                 >
                   {/* Announcement banner */}
@@ -209,28 +210,26 @@ const ChatPanel = ({ classId, classData }) => {
                   )}
 
                   {/* Name row */}
-                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'4px', gap:'8px' }}>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'4px', gap:'8px', flexWrap: 'wrap' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap' }}>
-                      <span style={{ fontSize:'13px', fontWeight:'700', color: nameColor }}>
+                      <span style={{ fontSize:'12px md:fontSize: 13px', fontWeight:'700', color: nameColor }}>
                         {(message.sender ? message.sender.name : 'Unknown User')}{isOwn && ' (You)'}
                       </span>
                       {/* Teacher badge */}
                       {isTeacher && (
                         <span style={{
                           display: 'inline-flex', alignItems: 'center', gap: '3px',
-                          fontSize: '10px', fontWeight: '700',
-                          padding: '1px 7px', borderRadius: '999px',
+                          fontSize: '9px', fontWeight: '700',
+                          padding: '1px 6px', borderRadius: '999px',
                           background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
                           color: '#fff',
-                          letterSpacing: '0.04em',
-                          boxShadow: '0 1px 4px rgba(124,58,237,0.35)'
+                          letterSpacing: '0.04em'
                         }}>
-                          <GraduationCap size={9} />
                           TEACHER
                         </span>
                       )}
                     </div>
-                    <span style={{ fontSize:'11px', color:'#9ca3af', whiteSpace:'nowrap' }}>
+                    <span style={{ fontSize:'10px md:fontSize: 11px', color:'#9ca3af', marginLeft: 'auto' }}>
                       {formatTime(message.createdAt)}
                     </span>
                   </div>

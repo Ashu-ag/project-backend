@@ -75,7 +75,7 @@ const Login = () => {
           background: 'rgba(255,255,255,0.07)',
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
           border: '1px solid rgba(255,255,255,0.18)',
-          borderRadius: '24px', padding: '2.5rem',
+          borderRadius: '24px', padding: 'clamp(1.25rem, 5vw, 2.5rem)',
           boxShadow: '0 25px 50px rgba(0,0,0,0.4)'
         }}>
           {/* Logo */}

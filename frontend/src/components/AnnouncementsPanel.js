@@ -87,19 +87,19 @@ const AnnouncementsPanel = ({ classId, classData }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       {/* Header */}
-      <div className="border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-            <Megaphone className="w-5 h-5 mr-2" />
+      <div className="border-b border-gray-200 p-3 md:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 className="text-base md:text-lg font-semibold text-gray-900 flex items-center">
+            <Megaphone className="w-5 h-5 mr-2 text-blue-600" />
             Class Announcements
-            <span className="ml-2 bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full">
+            <span className="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
               {announcements.length}
             </span>
           </h3>
           {(user.role === 'teacher' || user.role === 'admin') && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-amber-500 text-white rounded-lg font-medium transition-colors duration-200 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 flex items-center"
+              className="w-full sm:w-auto px-4 py-2 bg-amber-500 text-white rounded-lg font-medium transition-colors duration-200 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 flex items-center justify-center text-sm md:text-base"
             >
               <Plus className="w-4 h-4 mr-2" />
               New Announcement
@@ -127,31 +127,31 @@ const AnnouncementsPanel = ({ classId, classData }) => {
               key={announcement._id}
               className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-3">
                 <div className="flex items-start space-x-3">
-                  <div className="bg-yellow-100 p-2 rounded-full mt-1">
+                  <div className="bg-yellow-100 p-2 rounded-full mt-1 flex-shrink-0">
                     <Megaphone className="w-4 h-4 text-yellow-600" />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h4 className="font-semibold text-yellow-800">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-yellow-800 text-sm md:text-base truncate">
                         {announcement.sender.name}
                       </h4>
                       {announcement.sender._id === user.id && (
-                        <span className="bg-yellow-200 text-yellow-800 text-xs px-2 py-1 rounded">
+                        <span className="bg-yellow-200 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded font-medium">
                           You
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center text-sm text-yellow-600">
+                    <div className="flex items-center text-xs text-yellow-600">
                       <Calendar className="w-3 h-3 mr-1" />
                       {formatDate(announcement.createdAt)}
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center text-sm text-yellow-600">
+                <div className="flex items-center justify-between md:justify-end gap-3 border-t md:border-t-0 border-yellow-200 pt-2 md:pt-0">
+                  <div className="flex items-center text-xs text-yellow-600">
                     <Eye className="w-3 h-3 mr-1" />
                     {announcement.readBy?.length || 0} read
                   </div>
@@ -159,17 +159,8 @@ const AnnouncementsPanel = ({ classId, classData }) => {
                   {canDelete && (
                     <button
                       onClick={() => handleDeleteAnnouncement(announcement._id)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '4px',
-                        padding: '4px 10px', borderRadius: '8px', border: 'none',
-                        cursor: 'pointer', fontSize: '12px', fontWeight: '600',
-                        background: 'rgba(239,68,68,0.12)',
-                        color: '#dc2626',
-                        transition: 'background 0.15s'
-                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-none cursor-pointer text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                       title="Delete announcement"
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.22)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
                     >
                       <Trash2 size={13} />
                       Delete
@@ -178,7 +169,7 @@ const AnnouncementsPanel = ({ classId, classData }) => {
                 </div>
               </div>
               
-              <p className="text-yellow-700 ml-11 whitespace-pre-wrap">
+              <p className="text-yellow-700 ml-0 md:ml-11 text-sm md:text-base whitespace-pre-wrap leading-relaxed">
                 {announcement.content}
               </p>
             </div>
